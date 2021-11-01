@@ -23,8 +23,8 @@ boundary_func <- function(X){
 
 
 
-image <- "~/project-02/block-art.jpeg"
-colordistance::plotPixels("~/project-02/block-art.jpeg", lower = rep(0.8, 3), upper = rep(1, 3))
+image <- "~/project-02/data/block-art.jpeg"
+colordistance::plotPixels(image, lower = rep(0.8, 3), upper = rep(1, 3))
 colordistance::getImageHist(image, bins = 2, lower = NULL, upper = NULL, plotting = TRUE)
 lower <- NULL
 upper <- NULL
