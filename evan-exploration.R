@@ -1,11 +1,13 @@
 library(tidyverse)
-library(jpeg) # img dim function (for eventual generalization to nonsquare images)
+library(magick) # generalize beyond jpeg files
+# magick will also help with flood filling later
+# https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # load filepaths; in future this could be input to function
-#img <- here::here("data", "headshot-for-site.jpeg")
-img <- here::here("data", "block-art.jpeg")
+img <- here::here("data", "headshot-for-site.jpeg")
+#img <- here::here("data", "block-art.jpeg")
 
 # not used for rest of code but fun to see the 3d colorspace map
 colordistance::plotPixels(img, lower = NULL, upper = NULL)
@@ -36,12 +38,13 @@ my_r_squared <- my_colors$betweenss / (my_colors$betweenss + my_colors$withinss)
 # gets dimensions of image to help size matrix
 # irrelevant right now with our square images, but will work in future i think
 my_dim <- img %>%
-  jpeg::readJPEG() %>%
-  dim()
+  magick::image_read() %>%
+  magick::image_info()
 
 # need to rotate here because image() has annoying behavior of transposing/reversing rows
-my_matrix <- matrix(cluster_vector, nrow = my_dim[1], ncol = my_dim[2]) %>%
+my_matrix <- matrix(cluster_vector, nrow = my_dim$height, ncol = my_dim$width) %>%
   rotateFixed(90)
 
 # combine it all together into our color-simplified raster image!
 my_image <- image(z = my_matrix, col = cluster_centers)
+
