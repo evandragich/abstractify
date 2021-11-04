@@ -4,9 +4,9 @@ output: html_document
 ---
 
 # Project Goal 
-We intend to create a Shiny Application wherein the user inputs an image and 
+We intend to create a `Shiny` Application wherein the user inputs an image and 
 the application outputs a simplified version of this image as well as a custom 
-color palette based on the image which can then be used in ggplot visualizations 
+color palette based on the image which can then be used in `ggplot2` visualizations 
 and/or in a paint by numbers. 
 
 # Project Motivation and Focus 
@@ -21,7 +21,7 @@ purposes.
 
 We’ve chosen to organize our project repository in a similar manner to our first 
 project - the data and proposal have been given their own folders and the main 
-project rmd will be left at the top level of the project. Within our data folder,
+project `.Rmd` will be left at the top level of the project. Within our data folder,
 we’ll store the images that we use to test our app, but the final product should 
 obtain all of its images from user input. 
 
@@ -30,24 +30,25 @@ obtain all of its images from user input.
 Week of 11/8: all 4 team members will go through peer review of the proposal and 
 make any necessary edits to the project/proposal. Resubmit if necessary. Margaret 
 can perfect the function that draws the boundaries of the colors. Evan will 
-ensure that the imager package is the appropriate package to use for simplifying 
-the image. Emely and Andrew will explore the features of the colordistance package 
+work on integrating the back-end image parsing with image upload capabilities for 
+`Shiny`. Emely and Andrew will explore the features of the colordistance package 
 and aid other team members where necessary.
 
 Week of 11/15: The basic part of the project should be solidified at this point 
 (ie: drawing boundaries, extracting color, etc) At this point we can start 
-working on the Shiny app which will be the user’s interface for uploading their 
-image. All 4 team members should contribute to this. Simultaneously, we should 
-explore the other facets of the project and see which of the ideas we came up 
-with is going to be the most feasible and interesting. 
+working on the `Shiny` app which will be the user’s interface for uploading their 
+image. All 4 team members should contribute to this, and Evan can spearhead the 
+efforts with his previous experience working with interactivity and `Shiny`. 
+Simultaneously, we should explore the other facets of the project and see which 
+of the ideas we came up with is going to be the most feasible and interesting. 
 
-Week of 11/22: Continue developing the shiny app, incorporate the aspects of the 
+Week of 11/22: Continue developing the `Shiny` app, incorporate the aspects of the 
 project that we decide on the previous week (ie: interactive paint by numbers, 
 the different visualizations, etc). Begin presentation slides and write up. Emely
 and Margaret will take the lead on the write up and Andrew and Evan will work on 
 the presentation slides. 
 
-Week of 11/29: Finalize all aspects of the shiny app and project in general. Have
-other people test out the shiny app to ensure it is working and user friendly. 
+Week of 11/29: Finalize all aspects of the `Shiny` app and project in general. Have
+other people test out the `Shiny` app to ensure it is working and user friendly. 
 
 

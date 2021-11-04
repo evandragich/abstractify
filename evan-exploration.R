@@ -4,15 +4,20 @@ library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # load filepaths; in future this could be input to function
-img <- here::here("headshot-for-site.jpeg")
-img2 <- here::here("data", "block-art.jpeg")
+#img <- here::here("data", "headshot-for-site.jpeg")
+img <- here::here("data", "block-art.jpeg")
 
 # not used for rest of code but fun to see the 3d colorspace map
 colordistance::plotPixels(img, lower = NULL, upper = NULL)
 
+# parametrize how many clusters are created in next step.
+# my images looked best with 5
+n_color <- 5
+
 # turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
 # count of a square image not a perfect square LOL. way slower now but still good!
-my_colors <- colordistance::getKMeanColors(img, lower = NULL, upper = NULL, sample.size = FALSE)
+my_colors <- colordistance::getKMeanColors(img, lower = NULL, upper = NULL,
+                                           sample.size = FALSE, n = n_color)
 
 # this is the "big boy" vector with all pixels and their mapping
 cluster_vector <- my_colors$cluster
