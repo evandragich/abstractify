@@ -23,7 +23,9 @@ We’ve chosen to organize our project repository in a similar manner to our fir
 project - the data and proposal have been given their own folders and the main 
 project `.Rmd` will be left at the top level of the project. Within our data folder,
 we’ll store the images that we use to test our app, but the final product should 
-obtain all of its images from user input. 
+obtain all of its images from user input. In the interim we have created the 
+exploration and project folders to aid our introductory exploration of the new 
+packages and concepts we are working with.
 
 
 # Weekly Plan Outline 
