@@ -1,0 +1,42 @@
+library(tidyverse)
+library(jpeg) # img dim function (for eventual generalization to nonsquare images)
+library(OpenImageR) # rotate function
+library(colordistance) # eveyrthing else
+
+# load filepaths; in future this could be input to function
+img <- here::here("headshot-for-site.jpeg")
+img2 <- here::here("data", "block-art.jpeg")
+
+# not used for rest of code but fun to see the 3d colorspace map
+colordistance::plotPixels(img, lower = NULL, upper = NULL)
+
+# turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
+# count of a square image not a perfect square LOL. way slower now but still good!
+my_colors <- colordistance::getKMeanColors(img, lower = NULL, upper = NULL, sample.size = FALSE)
+
+# this is the "big boy" vector with all pixels and their mapping
+cluster_vector <- my_colors$cluster
+
+# grab rgb values of cluster centers to feed into image later
+cluster_centers <- my_colors$centers %>%
+  as_tibble() %>%
+  mutate(id = row_number(),
+         rgb_scaled = rgb(r, g, b)) %>%
+  select(rgb_scaled) %>%
+  pull()
+
+# get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
+my_r_squared <- my_colors$betweenss / (my_colors$betweenss + my_colors$withinss)
+
+# gets dimensions of image to help size matrix
+# irrelevant right now with our square images, but will work in future i think
+my_dim <- img %>%
+  jpeg::readJPEG() %>%
+  dim()
+
+# need to rotate here because image() has annoying behavior of transposing/reversing rows
+my_matrix <- matrix(cluster_vector, nrow = my_dim[1], ncol = my_dim[2]) %>%
+  rotateFixed(90)
+
+# combine it all together into our color-simplified raster image!
+my_image <- image(z = my_matrix, col = cluster_centers)
