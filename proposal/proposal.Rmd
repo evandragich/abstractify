@@ -20,12 +20,13 @@ will return the outlines of the image without color for possible printing
 purposes.
 
 We’ve chosen to organize our project repository in a similar manner to our first 
-project - the data and proposal have been given their own folders and the main 
-project `.Rmd` will be left at the top level of the project. Within our data folder,
-we’ll store the images that we use to test our app, but the final product should 
-obtain all of its images from user input. In the interim we have created the 
-exploration and project folders to aid our introductory exploration of the new 
-packages and concepts we are working with.
+project. There are four primary folders - data, exploration, project, and
+proposal - as well as an overall project `README.md`. Test images will reside in
+the data folder while the exploration folder contains R scripts of our custom
+functions. The project folder will hold the final self-contained `Shiny` app and
+final versions of the functions in exploration. The final goal is that the user
+may upload their own images and thus eliminating a need for the data or 
+exploration folders. 
 
 
 # Weekly Plan Outline 
