@@ -6,15 +6,15 @@ library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # load filepaths; in future this could be input to function
-img <- here::here("data", "headshot-for-site.jpeg")
-#img <- here::here("data", "block-art.jpeg")
+#img <- here::here("data", "headshot-for-site.jpeg")
+img <- here::here("data", "block-art.jpeg")
 
 # not used for rest of code but fun to see the 3d colorspace map
 colordistance::plotPixels(img, lower = NULL, upper = NULL)
 
 # parametrize how many clusters are created in next step.
 # my images looked best with 5
-n_color <- 5
+n_color <- 6
 
 # turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
 # count of a square image not a perfect square LOL. way slower now but still good!
@@ -33,7 +33,8 @@ cluster_centers <- my_colors$centers %>%
   pull()
 
 # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
-my_r_squared <- my_colors$betweenss / (my_colors$betweenss + my_colors$withinss)
+my_r_squared <- ((1 - (my_colors$tot.withinss / my_colors$totss)) * 100) %>%
+  round(digits = 1)
 
 # gets dimensions of image to help size matrix
 # irrelevant right now with our square images, but will work in future i think
