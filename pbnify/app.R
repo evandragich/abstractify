@@ -123,7 +123,9 @@ server <- function(input, output) {
 
     output$pixelated_img <- renderImage({
         # combine it all together into our color-simplified raster image!
-        ret <- image(z = img_matrix(), col = clustered_colors()) %>%
+        ret <- image(z = img_matrix(), col = clustered_colors(), axes=FALSE) %>%
+            as.raster() %>%
+            image_read() %>%
             image_write(tempfile(fileext = 'jpeg'), format = 'jpeg')
 
 

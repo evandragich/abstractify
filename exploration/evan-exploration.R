@@ -6,8 +6,8 @@ library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # load filepaths; in future this could be input to function
-#img <- here::here("data", "headshot-for-site.jpeg")
-img <- here::here("data", "block-art.jpeg")
+img <- here::here("data", "headshot-for-site.jpeg")
+#img <- here::here("data", "block-art.jpeg")
 
 # not used for rest of code but fun to see the 3d colorspace map
 colordistance::plotPixels(img, lower = NULL, upper = NULL)
@@ -47,5 +47,5 @@ my_matrix <- matrix(cluster_vector, nrow = my_dim$height, ncol = my_dim$width) %
   rotateFixed(90)
 
 # combine it all together into our color-simplified raster image!
-my_image <- image(z = my_matrix, col = cluster_centers)
+my_image <- image(z = my_matrix, col = cluster_centers, axes=FALSE)
 
