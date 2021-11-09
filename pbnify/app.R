@@ -140,21 +140,22 @@ server <- function(input, output) {
 
   output$color_table <- renderReactable({
       cluster_lookup() %>%
-          select(-cluster) %>%
+          arrange(desc(Pct)) %>%
           mutate(Pct = paste0(round(Pct * 100, digits = 1), "%"),
-                 highlight = NA) %>%
-          select(rgb_scaled, Pct, highlight) %>%
+                 placeholder = NA) %>%
+          select(rgb_scaled, Pct, placeholder) %>%
           reactable(
               columns = list(
                   rgb_scaled = colDef(name = "Hex Code"),
                   Pct = colDef(name = "Percentage of pixels"),
-                  highlight = colDef(name = "Color",
+                  placeholder = colDef(name = "Color",
                                      style = function(value, index) {
                                          color <- cluster_lookup()$rgb_scaled[index]
                                          list(background = color)
                                      }
                                      )
-              )
+              ),
+              rownames = FALSE,
           )
   })
 
