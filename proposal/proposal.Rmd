@@ -1,6 +1,6 @@
 ---
 title: "The Alphas Project #2 Proposal"
-output: html_document
+output: github_document
 ---
 
 # Project Goal 
@@ -16,8 +16,10 @@ prospect of generating blank, uncolored PBN templates untenable, but we instead
 intend to take an image, bin its most common colors, then return it with a 
 simplified color palette. Further, we’ll show some simple visualizations to 
 break down the frequency of colors in the modified image.  Additionally, we 
-will return the outlines of the image without color for possible printing 
-purposes.
+will return the outlines of the image without color using the function we've 
+created for possible printing purposes. We have decided to accomplish these goals
+within a shiny app in order to make the application user friendly and accessible
+to non-R users, for example.
 
 We’ve chosen to organize our project repository in a similar manner to our first 
 project. There are four primary folders - data, exploration, project, and
