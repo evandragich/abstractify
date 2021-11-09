@@ -9,10 +9,11 @@
 
 library(shiny)
 library(tidyverse)
+library(reactable) # color table
+library(reactablefmtr) # conditional colors in cells
 library(magick) # generalize beyond jpeg files
 # magick will also help with flood filling later
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
-library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # Define UI
@@ -42,6 +43,7 @@ ui <- fluidPage(
       # plotOutput("distPlot")
       imageOutput("pixelated_img"),
       plotOutput("colorspace_plot"),
+      reactableOutput("color_table"),
       textOutput("r_squared")
     )
   )
@@ -83,7 +85,8 @@ server <- function(input, output) {
   cluster_lookup <- reactive(
     my_colors() %>%
       extractClusters() %>%
-      mutate(cluster = row_number())
+      mutate(rgb_scaled = rgb(R, G, B),
+             cluster = row_number())
   )
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
@@ -134,6 +137,28 @@ server <- function(input, output) {
       lower = NULL, upper = NULL
     )
   })
+
+  output$color_table <- renderReactable({
+      cluster_lookup() %>%
+          select(-cluster) %>%
+          mutate(Pct = paste0(round(Pct * 100, digits = 1), "%"),
+                 highlight = NA) %>%
+          select(rgb_scaled, Pct, highlight) %>%
+          reactable(
+              columns = list(
+                  rgb_scaled = colDef(name = "Hex Code"),
+                  Pct = colDef(name = "Percentage of pixels"),
+                  highlight = colDef(name = "Color",
+                                     style = function(value, index) {
+                                         color <- cluster_lookup()$rgb_scaled[index]
+                                         list(background = color)
+                                     }
+                                     )
+              )
+          )
+  })
+
+
 }
 
 # Run the application
