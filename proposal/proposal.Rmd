@@ -23,6 +23,10 @@ printing purposes. We have decided to accomplish these goals within a shiny app
 in order to make the application user friendly and accessible to non-R users, 
 for example.
 
+Here is what we have so far: 
+
+![RShiny app](../data/app-screenshot.png)
+
 We’ve chosen to organize our project repository in a similar manner to our first 
 project. There are four primary folders - data, exploration, project, and
 proposal - as well as an overall project `README.md`. Test images will reside in

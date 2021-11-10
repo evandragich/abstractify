@@ -5,8 +5,10 @@ library(reactable) # color table
 library(reactablefmtr) # conditional colors in cells
 library(magick) # generalize beyond jpeg files
 # magick will also help with flood filling later
+
+
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
-library(colordistance) # eveyrthing else
+library(colordistance) # everything else
 
 # Define UI
 ui <- fluidPage(
@@ -35,7 +37,8 @@ ui <- fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      imageOutput("pixelated_img"),
+      imageOutput("pixelated_img",
+                  height = "200px"),
       plotOutput("colorspace_plot"),
       reactableOutput("color_table"),
       textOutput("r_squared")
@@ -114,7 +117,7 @@ server <- function(input, output) {
         image_read() %>%
         image_write(tempfile(fileext = dim()$format), format = dim()$format)
 
-      list(src = ret, contentType = paste0("image/", dim()$format))
+      list(src = ret, contentType = paste0("image/", dim()$format), height = "200px")
     },
     deleteFile = FALSE
   )
