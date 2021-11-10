@@ -14,7 +14,9 @@ We’ve been inspired to create this application by the prospect of
 automating the “paint-by-numbers” (PBN) process. Limitations in current
 R packages make the prospect of generating blank, uncolored PBN
 templates untenable, but we instead intend to take an image, bin its
-most common colors, then return it with a simplified color palette.
+most common colors, then return it with a simplified color palette. The
+number of colors in the palette can be controlled by the user using a
+sliding bar to indicate a more complex or more simple color palette.
 Further, we’ll show some simple visualizations to break down the
 frequency of colors in the modified image. Additionally, we will return
 the outlines of the image without color using the function we’ve created
@@ -60,3 +62,9 @@ slides.
 Week of 11/29: Finalize all aspects of the `Shiny` app and project in
 general. Have other people test out the `Shiny` app to ensure it is
 working and user friendly.
+
+# Package Documentation
+
+<https://hiweller.github.io/colordistance/>
+
+<https://cran.r-project.org/web/packages/magick/vignettes/intro.html>
