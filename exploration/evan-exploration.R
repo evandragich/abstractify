@@ -6,7 +6,8 @@ library(OpenImageR) # rotate function
 library(colordistance) # eveyrthing else
 
 # load filepaths; in future this could be input to function
-img <- here::here("data", "headshot-for-site.jpeg")
+#img <- here::here("data", "headshot-for-site.jpeg")
+img <- here::here("data", "sample-image.jpeg")
 #img <- here::here("data", "block-art.jpeg")
 
 # not used for rest of code but fun to see the 3d colorspace map

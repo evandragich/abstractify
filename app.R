@@ -1,11 +1,3 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 library(tidyverse)
@@ -20,7 +12,10 @@ library(colordistance) # eveyrthing else
 ui <- fluidPage(
 
   # Application title
-  titlePanel("PBN-ify"),
+  titlePanel(
+    h1("PBN-ify",
+    h4("Click \"Browse...\" to replace the default image with one of your own"))
+  ),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
@@ -40,7 +35,6 @@ ui <- fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      # plotOutput("distPlot")
       imageOutput("pixelated_img"),
       plotOutput("colorspace_plot"),
       reactableOutput("color_table"),
@@ -49,32 +43,25 @@ ui <- fluidPage(
   )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
 
-  # output$distPlot <- renderPlot({
-  #     # generate bins based on input$bins from ui.R
-  #     x    <- faithful[, 2]
-  #     bins <- seq(min(x), max(x), length.out = input$bins + 1)
-  #
-  #     # draw the histogram with the specified number of bins
-  #     hist(x, breaks = bins, col = 'darkgray', border = 'white')
-  # })
 
-  # from https://gist.github.com/jeroen/bd1d0a30e7184a5320695ee2bda12c70
-  # observeEvent(input$upload, {
-  #
-  #     image_path <- input$upload$datapath
-  #      image <- image_read(image_path)
-  #     image_info <- image_info(image)
-  # })
+  # prevents errors when app is first started
+  my_path <- reactive(
+    if (is.null(input$upload)) {
+      here::here("data", "sample-image.jpeg")
+    } else {
+      input$upload$datapath
+    }
+  )
 
 
 
   # turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
   # count of a square image not a perfect square LOL. way slower now but still good!
   my_colors <- reactive(
-    colordistance::getKMeanColors(input$upload$datapath,
+    colordistance::getKMeanColors(my_path(),
       lower = NULL, upper = NULL,
       sample.size = FALSE, n = input$clusters
     )
@@ -85,8 +72,10 @@ server <- function(input, output) {
   cluster_lookup <- reactive(
     my_colors() %>%
       extractClusters() %>%
-      mutate(rgb_scaled = rgb(R, G, B),
-             cluster = row_number())
+      mutate(
+        rgb_scaled = rgb(R, G, B),
+        cluster = row_number()
+      )
   )
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
@@ -99,7 +88,7 @@ server <- function(input, output) {
 
   # obtains dimensions of original image to size first 2d of 3d array
   dim <- reactive(
-    input$upload$datapath %>%
+    my_path() %>%
       image_read() %>%
       image_info()
   )
@@ -123,43 +112,43 @@ server <- function(input, output) {
     {
       ret <- pxl_img_array() %>%
         image_read() %>%
-        image_write(tempfile(fileext = "jpeg"), format = "jpeg")
+        image_write(tempfile(fileext = dim()$format), format = dim()$format)
 
-
-      list(src = ret, contentType = "image/jpeg")
+      list(src = ret, contentType = paste0("image/", dim()$format))
     },
     deleteFile = FALSE
   )
 
   output$colorspace_plot <- renderPlot({
-    colordistance::plotPixels(input$upload$datapath,
-      n = TRUE,
-      lower = NULL, upper = NULL
+    colordistance::plotPixels(my_path(),
+      lower = NULL, upper = NULL,
+      main = "Colorspace Plot"
     )
   })
 
   output$color_table <- renderReactable({
-      cluster_lookup() %>%
-          arrange(desc(Pct)) %>%
-          mutate(Pct = paste0(round(Pct * 100, digits = 1), "%"),
-                 placeholder = NA) %>%
-          select(rgb_scaled, Pct, placeholder) %>%
-          reactable(
-              columns = list(
-                  rgb_scaled = colDef(name = "Hex Code"),
-                  Pct = colDef(name = "Percentage of pixels"),
-                  placeholder = colDef(name = "Color",
-                                     style = function(value, index) {
-                                         color <- cluster_lookup()$rgb_scaled[index]
-                                         list(background = color)
-                                     }
-                                     )
-              ),
-              rownames = FALSE,
+    cluster_lookup() %>%
+      arrange(desc(Pct)) %>%
+      mutate(
+        Pct = paste0(round(Pct * 100, digits = 1), "%"),
+        placeholder = NA
+      ) %>%
+      select(rgb_scaled, Pct, placeholder) %>%
+      reactable(
+        columns = list(
+          rgb_scaled = colDef(name = "Hex Code"),
+          Pct = colDef(name = "Percentage of pixels"),
+          placeholder = colDef(
+            name = "Color",
+            style = function(value, index) {
+              color <- cluster_lookup()$rgb_scaled[index]
+              list(background = color)
+            }
           )
+        ),
+        rownames = FALSE,
+      )
   })
-
-
 }
 
 # Run the application
