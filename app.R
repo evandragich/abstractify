@@ -26,8 +26,8 @@ source("exploration/outline.R")
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
   filter(year >= 1990)
 
-# dog_travel <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv')
-# state_list <- tibble(abbreviation = state.abb, name = state.name)
+dog_travel <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv')
+state_list <- tibble(abbreviation = state.abb, name = state.name)
 
 
 # vector of fields in desc frequency of avg over years; helpful for fct_other() later
@@ -47,63 +47,71 @@ ui <- fluidPage(
     h1("PBN-ify",
     h4("Click \"Browse...\" to replace the default image with one of your own"))
   ),
-
-  # Sidebar with a slider input for number of bins
-  sidebarLayout(
-    sidebarPanel(
-      sliderInput("clusters",
-        "Number of colors:\n(Most images look best with 3-5!)",
-        min = 1,
-        max = 10,
-        value = 5
-      ),
-      fileInput("upload",
-        "Upload an image:",
-        accept = "image/*",
-        placeholder = "No image selected"
-      )
-    ),
-
-    # Show a plot of the generated distribution
-    mainPanel(
-      tabsetPanel(
-        tabPanel(
-          title = "Home",
-          imageOutput("pixelated_img", height = "200px"),
-          plotOutput("colorspace_plot"),
-          reactableOutput("color_table"),
-          textOutput("r_squared")
+  tabsetPanel(
+    tabPanel(
+      title = "PBN",
+      # Sidebar with a slider input for number of bins
+      sidebarLayout(
+        sidebarPanel(
+          sliderInput("clusters",
+                      "Number of colors:\n(Most images look best with 3-5!)",
+                      min = 1,
+                      max = 10,
+                      value = 5
           ),
-        tabPanel(
-          title = "Simplified Output"
+          fileInput("upload",
+                    "Upload an image:",
+                    accept = "image/*",
+                    placeholder = "No image selected"
+          )
         ),
-        tabPanel(
-          title = "Outline",
-          plotOutput("outline")
-        ),
-        tabPanel(
-          title = "Example plots",
-          textOutput("example_plot_description"),
-          radioButtons("example_type",
-                      "Choose Plot Type:",
-                      choices = c("Discrete", "Sequential", "Diverging"),
-                      selected = "Discrete"
-          ),
-          sliderInput("gray_val",
-                      "Adjust the darkness of the \"Other\" or NA Category",
-                      min = 10,
-                      max = 90,
-                      value = 30,
-                      step = 5
-          ),
-          plotOutput("basic_plot"),
-          plotOutput("colorized_plot"),
-          plotOutput("viridis_plot"),
-          plotOutput("okabeito_plot"),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "Home"
+            ),
+            tabPanel(
+              title = "Color Info",
+              plotOutput("colorspace_plot"),
+              reactableOutput("color_table"),
+              textOutput("r_squared")
+            ),
+            tabPanel(
+              title = "Simplified Output",
+              imageOutput("pixelated_img", height = "200px")
+            ),
+            tabPanel(
+              title = "Outline",
+              plotOutput("outline")
+            )
+
+          )
         )
+        )
+      ),
+    tabPanel(
+      title = "Color Palette",
+      textOutput("example_plot_description"),
+      radioButtons("example_type",
+                   "Choose Plot Type:",
+                   choices = c("Discrete", "Sequential", "Diverging"),
+                   selected = "Discrete"
+      ),
+      sliderInput("gray_val",
+                  "Adjust the darkness of the \"Other\" or NA Category",
+                  min = 10,
+                  max = 90,
+                  value = 30,
+                  step = 5
+      ),
+      plotOutput("basic_plot"),
+      plotOutput("colorized_plot"),
+      plotOutput("viridis_plot"),
+      plotOutput("okabeito_plot")
+      )
 
-    )
-  )
 )
 )
 
