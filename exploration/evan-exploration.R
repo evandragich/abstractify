@@ -37,7 +37,10 @@ raw_image_vector <- my_colors$cluster
 
 cluster_lookup <- my_colors %>%
   extractClusters() %>%
-  mutate(cluster = row_number())
+  mutate(rgb_scaled = rgb(R, G, B),
+         cluster = row_number()) %>%
+  select(rgb_scaled) %>%
+  pull()
 
 # gets dimensions of image to help size matrix
 # irrelevant right now with our square images, but will work in future i think

@@ -87,7 +87,7 @@ ui <- fluidPage(
                       selected = "Discrete"
           ),
           sliderInput("gray_val",
-                      "Adjust the darkness of the \"Other\" Category",
+                      "Adjust the darkness of the \"Other\" or NA Category",
                       min = 10,
                       max = 90,
                       value = 30,
@@ -137,6 +137,15 @@ server <- function(input, output) {
         rgb_scaled = rgb(R, G, B),
         cluster = row_number()
       )
+  )
+
+  # gets ordered hex codes to find lightest/darkest for continuous plots
+  ordered_hexes <- reactive(
+    cluster_lookup() %>%
+      mutate(avg = sum(R, G, B)) %>%
+      arrange(avg) %>%
+      select(rgb_scaled) %>%
+      pull()
   )
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
@@ -240,22 +249,19 @@ server <- function(input, output) {
       theme(legend.position = "top")
   )
 
-  sequential_plot <- reactive(
-    dog_travel %>%
+  sequential_plot <- dog_travel %>%
     group_by(contact_state) %>%
     summarise(n = n()) %>%
-  left_join(dog_travel, state_list, by = c("contact_state" = "abbreviation")) %>%
+  right_join(state_list, by = c("contact_state" = "abbreviation")) %>%
     mutate(name = str_to_lower(name)) %>%
-    left_join(map_data("state"), dogs, by = c("region" = "name")) %>%
+    left_join(map_data("state"), dogs, by = c("name" = "region")) %>%
     ggplot(mapping = aes(x = long, y = lat, group = group, fill = n)) +
     geom_polygon(color = "black") +
-    scale_fill_viridis_c(trans = "log10") +
     labs(title = "Number of Dogs Available to Adopt in U.S. States",
          caption = "Gray represents states with missing or unknown data.",
          fill = "Dogs") +
     theme_void() +
     theme(plot.title = element_text(size = 18, hjust = 0.5))
-  )
 
 ## EVAN TODO:
   # create sample plot for diverging
@@ -264,37 +270,63 @@ server <- function(input, output) {
 
 # output the base ggplot for discrete color palettes
     output$basic_plot <- renderPlot({
+      if (input$example_type == "Discrete") {
       discrete_plot() +
         scale_color_manual(
           values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
         )
+      } else if (input$example_type == "Sequential") {
+        sequential_plot +
+          scale_fill_gradient(trans = "log10",
+                              na.value = paste0("gray", (100 - input$gray_val)))
+      }
+
   })
 
 # output the ggplot with our colors for discrete color palettes
 output$colorized_plot <- renderPlot({
+  if (input$example_type == "Discrete") {
   discrete_plot() +
     scale_color_manual(
       values = c(cluster_lookup()$rgb_scaled, paste0("gray", (100 - input$gray_val))),
     )
+  } else if (input$example_type == "Sequential") {
+    sequential_plot +
+      scale_fill_gradient(trans = "log10",
+                          low = ordered_hexes()[1],
+                          high = ordered_hexes()[input$clusters],
+                          na.value = paste0("gray", (100 - input$gray_val)))
+  }
 
 })
 
 # output the ggplot with okabe ito colors for discrete color palettes
 # fyi -- OkabeIto can only take 7 non-gray values, so will need guard
 output$okabeito_plot <- renderPlot({
+  if (input$example_type == "Discrete") {
   discrete_plot() +
     scale_color_manual(
       values = c(palette_OkabeIto[1:input$clusters], paste0("gray", (100 - input$gray_val))),
     )
+} else if (input$example_type == "Sequential") {
+  NULL
+}
 
 })
 
 # output the ggplot with viridis colors for discrete color palettes
 output$viridis_plot <- renderPlot({
+  if (input$example_type == "Discrete") {
   discrete_plot() +
     scale_color_manual(
       values = c(viridis_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
     )
+  } else if (input$example_type == "Sequential") {
+    sequential_plot +
+      scale_fill_viridis_c(trans = "log10",
+                           option = "A",
+                           na.value = paste0("gray", (100 - input$gray_val)))
+  }
 
 })
 }
