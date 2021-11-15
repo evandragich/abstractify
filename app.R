@@ -20,6 +20,8 @@ library(colorblindr) # okabe-ito palette for sample plots
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 library(colordistance) # everything else
 
+source("exploration/outline.R")
+
 # load data for sample plots
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
   filter(year >= 1990)
@@ -76,7 +78,8 @@ ui <- fluidPage(
           title = "Simplified Output"
         ),
         tabPanel(
-          title = "Outline"
+          title = "Outline",
+          plotOutput("outline")
         ),
         tabPanel(
           title = "Example plots",
@@ -157,7 +160,7 @@ server <- function(input, output) {
 
 
   # obtains dimensions of original image to size first 2d of 3d array
-  dim <- reactive(
+  my_dim <- reactive(
     my_path() %>%
       image_read() %>%
       image_info()
@@ -172,7 +175,7 @@ server <- function(input, output) {
       {
         array(
           data = c(.$R, .$G, .$B),
-          dim = c(dim()$height, dim()$width, 3)
+          dim = c(my_dim()$height, my_dim()$width, 3)
         )
       }
   )
@@ -182,9 +185,9 @@ server <- function(input, output) {
     {
       ret <- pxl_img_array() %>%
         image_read() %>%
-        image_write(tempfile(fileext = dim()$format), format = dim()$format)
+        image_write(tempfile(fileext = my_dim()$format), format = my_dim()$format)
 
-      list(src = ret, contentType = paste0("image/", dim()$format), height = "200px")
+      list(src = ret, contentType = paste0("image/", my_dim()$format), height = "200px")
     },
     deleteFile = FALSE
   )
@@ -329,6 +332,12 @@ output$viridis_plot <- renderPlot({
   }
 
 })
+
+  output$outline <- renderPlot({
+    outline_func(my_colors()$cluster, c(my_dim()$height, my_dim()$width))
+
+})
+
 }
 
 # Run the application
