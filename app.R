@@ -11,6 +11,9 @@ library(colorblindr) # okabe-ito palette for sample plots
 
 # data source for degrees data:
 # https://wilkelab.org/SDS375/datasets/BA_degrees.csv
+# source for dogs data: HW3 Q5
+# "state-list.csv: Created using state.abb and state.name"
+# dog_travel: https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-12-17
 # sample plots inspired by HW4 Q1
 
 
@@ -18,7 +21,20 @@ library(colorblindr) # okabe-ito palette for sample plots
 library(colordistance) # everything else
 
 # load data for sample plots
-degrees <- read_csv(here::here("data", "BA_degrees.csv"))
+degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
+  filter(year >= 1990)
+
+# dog_travel <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv')
+# state_list <- tibble(abbreviation = state.abb, name = state.name)
+
+
+# vector of fields in desc frequency of avg over years; helpful for fct_other() later
+ordered_fields <- degrees %>%
+  group_by(field) %>%
+  summarise(avg = mean(perc)) %>%
+  arrange(desc(avg)) %>%
+  select(field) %>%
+  pull()
 
 
 # Define UI
@@ -74,13 +90,13 @@ ui <- fluidPage(
                       "Adjust the darkness of the \"Other\" Category",
                       min = 10,
                       max = 90,
-                      value = 70,
+                      value = 30,
                       step = 5
           ),
           plotOutput("basic_plot"),
           plotOutput("colorized_plot"),
-          #plotOutput("viridis_plot"),
-          #plotOutput("okabeito_plot"),
+          plotOutput("viridis_plot"),
+          plotOutput("okabeito_plot"),
         )
 
     )
@@ -200,52 +216,85 @@ server <- function(input, output) {
     "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`."
   })
 
-  # create base plot to be layered upon
+  # create base discrete plot to be layered upon
   # only reactive change is number of non-lumped factors
-  base_plot <- reactive(
+  discrete_plot <- reactive(
+
     degrees %>%
-    mutate(field = fct_lump_n(field,
-                              n = input$clusters,
-                              ties.method = "first")) %>%
+      arrange(desc(perc)) %>%
+    mutate(field = fct_other(field,
+                              keep = ordered_fields[1:input$clusters])) %>%
     group_by(field, year) %>%
     summarise(perc = sum(perc), .groups = "drop_last") %>%
     ggplot(mapping = aes(x = year, y = perc, group = field, color = field)) +
     geom_line() +
     labs(
       title = "Percentage of annual degrees awarded",
-      subtitle = "from 1971 to 2015 in the US",
+      subtitle = "from 1990 to 2015 in the US",
       x = "Year",
       y = "Percent",
       color = "Field"
     ) +
-    scale_y_continuous(labels = label_percent())
+    scale_y_continuous(labels = label_percent())  +
+      theme_minimal() +
+      theme(legend.position = "top")
+  )
+
+  sequential_plot <- reactive(
+    dog_travel %>%
+    group_by(contact_state) %>%
+    summarise(n = n()) %>%
+  left_join(dog_travel, state_list, by = c("contact_state" = "abbreviation")) %>%
+    mutate(name = str_to_lower(name)) %>%
+    left_join(map_data("state"), dogs, by = c("region" = "name")) %>%
+    ggplot(mapping = aes(x = long, y = lat, group = group, fill = n)) +
+    geom_polygon(color = "black") +
+    scale_fill_viridis_c(trans = "log10") +
+    labs(title = "Number of Dogs Available to Adopt in U.S. States",
+         caption = "Gray represents states with missing or unknown data.",
+         fill = "Dogs") +
+    theme_void() +
+    theme(plot.title = element_text(size = 18, hjust = 0.5))
   )
 
 ## EVAN TODO:
-  # parametrize all but color palette for basic discrete plot
-  # add okabe ito and viridis example plots
   # create sample plot for diverging
   # create UI to choose color for diverging
 
 
 # output the base ggplot for discrete color palettes
     output$basic_plot <- renderPlot({
-      base_plot() +
+      discrete_plot() +
         scale_color_manual(
           values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
-        ) +
-        theme_minimal() +
-        theme(legend.position = "top")
+        )
   })
 
 # output the ggplot with our colors for discrete color palettes
 output$colorized_plot <- renderPlot({
-  base_plot() +
+  discrete_plot() +
     scale_color_manual(
       values = c(cluster_lookup()$rgb_scaled, paste0("gray", (100 - input$gray_val))),
-    ) +
-    theme_minimal() +
-    theme(legend.position = "top")
+    )
+
+})
+
+# output the ggplot with okabe ito colors for discrete color palettes
+# fyi -- OkabeIto can only take 7 non-gray values, so will need guard
+output$okabeito_plot <- renderPlot({
+  discrete_plot() +
+    scale_color_manual(
+      values = c(palette_OkabeIto[1:input$clusters], paste0("gray", (100 - input$gray_val))),
+    )
+
+})
+
+# output the ggplot with viridis colors for discrete color palettes
+output$viridis_plot <- renderPlot({
+  discrete_plot() +
+    scale_color_manual(
+      values = c(viridis_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
+    )
 
 })
 }
