@@ -142,7 +142,7 @@ server <- function(input, output) {
       )
   )
 
-  # gets ordered hex codes to find lightest/darkest for continuous plots
+  # vector of ordered hex codes to find lightest/darkest for continuous plots
   ordered_hexes <- reactive(
     cluster_lookup() %>%
       mutate(avg = sum(R, G, B)) %>%
@@ -252,6 +252,7 @@ server <- function(input, output) {
       theme(legend.position = "top")
   )
 
+  # creates sequential base plot which is NOT reactive
   sequential_plot <- dog_travel %>%
     group_by(contact_state) %>%
     summarise(n = n()) %>%
