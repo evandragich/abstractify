@@ -1,14 +1,25 @@
 
 library(shiny)
 library(tidyverse)
+library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(reactablefmtr) # conditional colors in cells
 library(magick) # generalize beyond jpeg files
 # magick will also help with flood filling later
+library(palmerpenguins) # penguins dataset for sample plot
+library(colorblindr) # okabe-ito palette for sample plots
+
+# data source for degrees data:
+# https://wilkelab.org/SDS375/datasets/BA_degrees.csv
+# sample plots inspired by HW4 Q1
 
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 library(colordistance) # everything else
+
+# load data for sample plots
+degrees <- read_csv(here::here("data", "BA_degrees.csv"))
+
 
 # Define UI
 ui <- fluidPage(
@@ -52,7 +63,24 @@ ui <- fluidPage(
           title = "Outline"
         ),
         tabPanel(
-          title = "Example plots"
+          title = "Example plots",
+          textOutput("example_plot_description"),
+          radioButtons("example_type",
+                      "Choose Plot Type:",
+                      choices = c("Discrete", "Sequential", "Diverging"),
+                      selected = "Discrete"
+          ),
+          sliderInput("gray_val",
+                      "Adjust the darkness of the \"Other\" Category",
+                      min = 10,
+                      max = 90,
+                      value = 70,
+                      step = 5
+          ),
+          plotOutput("basic_plot"),
+          plotOutput("colorized_plot"),
+          #plotOutput("viridis_plot"),
+          #plotOutput("okabeito_plot"),
         )
 
     )
@@ -166,6 +194,60 @@ server <- function(input, output) {
         rownames = FALSE,
       )
   })
+
+  # description to explain example plot tab
+  output$example_plot_description <- renderText({
+    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`."
+  })
+
+  # create base plot to be layered upon
+  # only reactive change is number of non-lumped factors
+  base_plot <- reactive(
+    degrees %>%
+    mutate(field = fct_lump_n(field,
+                              n = input$clusters,
+                              ties.method = "first")) %>%
+    group_by(field, year) %>%
+    summarise(perc = sum(perc), .groups = "drop_last") %>%
+    ggplot(mapping = aes(x = year, y = perc, group = field, color = field)) +
+    geom_line() +
+    labs(
+      title = "Percentage of annual degrees awarded",
+      subtitle = "from 1971 to 2015 in the US",
+      x = "Year",
+      y = "Percent",
+      color = "Field"
+    ) +
+    scale_y_continuous(labels = label_percent())
+  )
+
+## EVAN TODO:
+  # parametrize all but color palette for basic discrete plot
+  # add okabe ito and viridis example plots
+  # create sample plot for diverging
+  # create UI to choose color for diverging
+
+
+# output the base ggplot for discrete color palettes
+    output$basic_plot <- renderPlot({
+      base_plot() +
+        scale_color_manual(
+          values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
+        ) +
+        theme_minimal() +
+        theme(legend.position = "top")
+  })
+
+# output the ggplot with our colors for discrete color palettes
+output$colorized_plot <- renderPlot({
+  base_plot() +
+    scale_color_manual(
+      values = c(cluster_lookup()$rgb_scaled, paste0("gray", (100 - input$gray_val))),
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+
+})
 }
 
 # Run the application
