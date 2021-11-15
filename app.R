@@ -37,13 +37,27 @@ ui <- fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      imageOutput("pixelated_img",
-                  height = "200px"),
-      plotOutput("colorspace_plot"),
-      reactableOutput("color_table"),
-      textOutput("r_squared")
+      tabsetPanel(
+        tabPanel(
+          title = "Home",
+          imageOutput("pixelated_img", height = "200px"),
+          plotOutput("colorspace_plot"),
+          reactableOutput("color_table"),
+          textOutput("r_squared")
+          ),
+        tabPanel(
+          title = "Simplified Output"
+        ),
+        tabPanel(
+          title = "Outline"
+        ),
+        tabPanel(
+          title = "Example plots"
+        )
+
     )
   )
+)
 )
 
 # Define server logic

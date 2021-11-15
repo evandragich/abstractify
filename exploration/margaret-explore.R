@@ -11,8 +11,6 @@ boundary_func <- function(X, dim){
   for(i in seq(n)){
     for(j in seq(m)){
       current_color = X[i, j]
-      # print(current_color)
-      # print(X[i, j - 1])
       if(i != n & j != m & i != 1 & j != 1){
         if((current_color != X[i, j - 1]) | (current_color != X[i, j + 1]) |
            (current_color != X[i + 1, j]) | (current_color != X[i - 1, j-1])){
