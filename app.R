@@ -80,7 +80,8 @@ ui <- fluidPage(
             ),
             tabPanel(
               title = "Simplified Output",
-              imageOutput("pixelated_img", height = "200px")
+              imageOutput("pixelated_img", height = "200px"),
+              downloadButton('download_pxl', 'Download modified image')
             ),
             tabPanel(
               title = "Outline",
@@ -188,15 +189,20 @@ server <- function(input, output) {
       }
   )
 
+  # write image object. needs outside of pixelated_img for use when downloading
+  ret <- reactive(
+    pxl_img_array() %>%
+    image_read() %>%
+    image_write(tempfile(fileext = my_dim()$format), format = my_dim()$format)
+  )
+
 
   output$pixelated_img <- renderImage(
     {
-      ret <- pxl_img_array() %>%
-        image_read() %>%
-        image_write(tempfile(fileext = my_dim()$format), format = my_dim()$format)
 
-      list(src = ret, contentType = paste0("image/", my_dim()$format), height = "200px")
+      list(src = ret(), contentType = paste0("image/", my_dim()$format), height = "200px")
     },
+    # saves image after sending to UI
     deleteFile = FALSE
   )
 
@@ -346,6 +352,16 @@ output$viridis_plot <- renderPlot({
     outline_func(my_colors()$cluster, c(my_dim()$height, my_dim()$width))
 
 })
+
+  output$download_pxl <- downloadHandler(
+    filename = paste0("pixelated_image_", input$clusters, "_colors_", Sys.Date(),".jpeg", sep = ''),
+    contentType = "image/jpeg",
+    content = function(file) {
+      file.copy(ret(), file)
+    }
+  )
+
+
 
 }
 
