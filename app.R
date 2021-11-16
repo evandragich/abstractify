@@ -149,15 +149,30 @@ server <- function(input, output) {
     )
   )
 
+  # function to lookup closest hex code from the named dictionary for any given rgb
+  find_closest <- function(my_r, my_g, my_b) {
+    temp <- color_names %>%
+      mutate(diff = abs(R - my_r) + abs(G - my_g) + abs(B - my_b)) %>%
+      arrange(diff) %>%
+      select(name) %>%
+      pull()
+
+    temp[1]
+
+  }
+
   # grab rgb values of cluster centers to feed into image later
   # this is a df with obs for every cluster, cols RGB vals and % of image
+  # also has the closest named hex code given from above function
   cluster_lookup <- reactive(
     my_colors() %>%
       extractClusters() %>%
       mutate(
         rgb_scaled = rgb(R, G, B),
         cluster = row_number()
-      )
+      ) %>%
+      rowwise() %>%
+      mutate(closest = find_closest(R, G, B))
   )
 
   # vector of ordered hex codes to find lightest/darkest for continuous plots
@@ -222,22 +237,33 @@ server <- function(input, output) {
     )
   })
 
+  find_closest <- function(my_r, my_g, my_b) {
+    temp <- color_names %>%
+      mutate(diff = abs(R - my_r) + abs(G - my_g) + abs(B - my_b)) %>%
+      arrange(diff) %>%
+      select(name) %>%
+      pull()
+
+    temp[1]
+
+  }
+
   output$color_table <- renderReactable({
     cluster_lookup() %>%
-      # i dont know why this doesnt work, trying to join color names to hex codes
-      #left_join(color_names, by = c("rgb_scaled", "hex_rgb")) %>%
+
+      # works now, but minimal matching. will work on matching closest neighbor
+      #left_join(color_names, by = "rgb_scaled") %>%
       arrange(desc(Pct)) %>%
       mutate(
         Pct = paste0(round(Pct * 100, digits = 1), "%"),
         placeholder = NA
       ) %>%
-      select(rgb_scaled, Pct, placeholder) %>%
-      #select(rgb_scaled, Pct, placeholder, name) %>%
+      select(rgb_scaled, Pct, placeholder, closest) %>%
       reactable(
         columns = list(
           rgb_scaled = colDef(name = "Hex Code"),
           Pct = colDef(name = "Percentage of pixels"),
-          # name = colDef(name = "Name"),
+           closest = colDef(name = "Nearest named color"),
           placeholder = colDef(
             name = "Color",
             style = function(value, index) {

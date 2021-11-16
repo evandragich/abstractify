@@ -39,8 +39,24 @@ cluster_lookup <- my_colors %>%
   extractClusters() %>%
   mutate(rgb_scaled = rgb(R, G, B),
          cluster = row_number()) %>%
-  select(rgb_scaled) %>%
-  pull()
+  rowwise() %>%
+  mutate(closest = find_closest(R, G, B))
+
+  #        cluster = row_number()) %>%
+  # select(rgb_scaled) %>%
+  # pull()
+
+# function to find closest named color to hex code
+find_closest <- function(my_r, my_g, my_b) {
+  temp <- color_names %>%
+    mutate(diff = abs(R - my_r) + abs(G - my_g) + abs(B - my_b)) %>%
+    arrange(diff) %>%
+    select(name) %>%
+    pull()
+
+  temp[1]
+
+}
 
 # gets dimensions of image to help size matrix
 # irrelevant right now with our square images, but will work in future i think
