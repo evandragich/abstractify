@@ -15,6 +15,8 @@ library(colorblindr) # okabe-ito palette for sample plots
 # "state-list.csv: Created using state.abb and state.name"
 # dog_travel: https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-12-17
 # sample plots inspired by HW4 Q1
+# source for color names:
+#https://en.wikipedia.org/wiki/Lists_of_colors
 
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
@@ -28,6 +30,9 @@ degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
 
 dog_travel <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv')
 state_list <- tibble(abbreviation = state.abb, name = state.name)
+
+# load color name data
+color_names <- read_csv(here::here("data", "color_names.csv"))
 
 
 # vector of fields in desc frequency of avg over years; helpful for fct_other() later
@@ -107,9 +112,13 @@ ui <- fluidPage(
                   value = 30,
                   step = 5
       ),
-      plotOutput("basic_plot"),
+      h2("PBN-ified Plot"),
       plotOutput("colorized_plot"),
+      h2("Base color Plot"),
+      plotOutput("basic_plot"),
+      h2("Viridis Plot"),
       plotOutput("viridis_plot"),
+      h2("Okabe-Ito Plot"),
       plotOutput("okabeito_plot")
       )
 
@@ -215,16 +224,20 @@ server <- function(input, output) {
 
   output$color_table <- renderReactable({
     cluster_lookup() %>%
+      # i dont know why this doesnt work, trying to join color names to hex codes
+      #left_join(color_names, by = c("rgb_scaled", "hex_rgb")) %>%
       arrange(desc(Pct)) %>%
       mutate(
         Pct = paste0(round(Pct * 100, digits = 1), "%"),
         placeholder = NA
       ) %>%
       select(rgb_scaled, Pct, placeholder) %>%
+      #select(rgb_scaled, Pct, placeholder, name) %>%
       reactable(
         columns = list(
           rgb_scaled = colDef(name = "Hex Code"),
           Pct = colDef(name = "Percentage of pixels"),
+          # name = colDef(name = "Name"),
           placeholder = colDef(
             name = "Color",
             style = function(value, index) {
