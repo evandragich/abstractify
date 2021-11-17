@@ -89,7 +89,15 @@ ui <- fluidPage(
         mainPanel(
           tabsetPanel(
             tabPanel(
-              title = "Home"
+              title = "Home",
+              h2("Welcome to PBNify!"),
+              p("How to use: select one our preset images or upload one of your
+                own, and choose a k value. You can explore the various tabs to
+                see the simplified version of your image and the outline
+                version. You can also see some sample color palettes to use in
+                ggplot!"),
+              p("Your image:"),
+              imageOutput("original_img")
             ),
             tabPanel(
               title = "Color Info",
@@ -150,8 +158,6 @@ server <- function(input, output) {
     }
   )
 
-
-
   # turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
   # count of a square image not a perfect square LOL. way slower now but still good!
   my_colors <- reactive(
@@ -210,6 +216,14 @@ server <- function(input, output) {
       image_info()
   )
 
+
+  output$original_img <- renderImage(
+    {
+      list(src = my_path(), height = "200px")
+    },
+    # saves image after sending to UI
+    deleteFile = FALSE
+  )
   # parses the cluster vector outputted from getKmeanColors() with
   # cluster lookup table to create 3d array of pixelated image!
 
