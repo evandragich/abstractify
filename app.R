@@ -69,6 +69,19 @@ ui <- fluidPage(
             "Upload an image:",
             accept = "image/*",
             placeholder = "No image selected"
+          ),
+          p("Or"),
+          selectInput(
+            inputId = "defaultImage",
+            label = "Choose an Image",
+            choices = c(
+              "Marge Simpson" = "marge-simpson.jpeg",
+              "Margaret Picture" = "MargaretReed.jpeg",
+              "Evan Picture" = "sample-image.jpeg",
+              "Block Art" = "block-art.jpeg"
+            ),
+            selected = "sample-image.jpeg",
+            multiple = FALSE
           )
         ),
 
@@ -131,7 +144,7 @@ server <- function(input, output) {
   # prevents errors when app is first started
   my_path <- reactive(
     if (is.null(input$upload)) {
-      here::here("data", "sample-image.jpeg")
+      here::here("data", input$defaultImage)
     } else {
       input$upload$datapath
     }
