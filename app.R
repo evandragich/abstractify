@@ -100,12 +100,6 @@ ui <- fluidPage(
               imageOutput("original_img")
             ),
             tabPanel(
-              title = "Color Info",
-              plotOutput("colorspace_plot"),
-              reactableOutput("color_table"),
-              textOutput("r_squared")
-            ),
-            tabPanel(
               title = "Simplified Output",
               imageOutput("pixelated_img", height = "200px"),
               downloadButton("download_pxl", "Download modified image")
@@ -120,29 +114,40 @@ ui <- fluidPage(
     ),
     tabPanel(
       title = "Color Palette",
-      textOutput("example_plot_description"),
-      radioButtons("example_type",
-        "Choose Plot Type:",
-        choices = c("Discrete", "Sequential", "Diverging"),
-        selected = "Discrete"
-      ),
-      sliderInput("gray_val",
-        "Adjust the darkness of the \"Other\" or NA Category",
-        min = 10,
-        max = 90,
-        value = 30,
-        step = 5
-      ),
-      h2("PBN-ified Plot"),
-      plotOutput("colorized_plot"),
-      h2("Base color Plot"),
-      plotOutput("basic_plot"),
-      h2("Viridis Plot"),
-      plotOutput("viridis_plot"),
-      h2("Okabe-Ito Plot"),
-      plotOutput("okabeito_plot")
-    )
-  )
+      tabsetPanel(
+        tabPanel(
+          title = "Color Info",
+          plotOutput("colorspace_plot"),
+          reactableOutput("color_table"),
+          textOutput("r_squared")
+        ),
+        tabPanel(
+          title = "Plotting",
+          textOutput("example_plot_description"),
+               radioButtons("example_type",
+                            "Choose Plot Type:",
+                            choices = c("Discrete", "Sequential", "Diverging"),
+                            selected = "Discrete"
+               ),
+               sliderInput("gray_val",
+                           "Adjust the darkness of the \"Other\" or NA Category",
+                           min = 10,
+                           max = 90,
+                           value = 30,
+                           step = 5
+               ),
+               h2("PBN-ified Plot"),
+               plotOutput("colorized_plot"),
+               h2("Base color Plot"),
+               plotOutput("basic_plot"),
+               h2("Viridis Plot"),
+               plotOutput("viridis_plot"),
+               h2("Okabe-Ito Plot"),
+               plotOutput("okabeito_plot")
+      ))
+      )
+
+)
 )
 
 # Define server logic
