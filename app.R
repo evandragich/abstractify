@@ -1,25 +1,13 @@
-
 library(shiny)
 library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # generalize beyond jpeg files
-# magick will also help with flood filling later
 library(palmerpenguins) # penguins dataset for sample plot
 library(colorblindr) # okabe-ito palette for sample plots
-
-# data source for degrees data:
-# https://wilkelab.org/SDS375/datasets/BA_degrees.csv
-# source for dogs data: HW3 Q5
-# "state-list.csv: Created using state.abb and state.name"
-# dog_travel: https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-12-17
-# sample plots inspired by HW4 Q1
-# source for color names:
-# https://en.wikipedia.org/wiki/Lists_of_colors
-
+library(colordistance) # our main package
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
-library(colordistance) # everything else
 
 source("exploration/outline.R")
 
@@ -27,7 +15,7 @@ source("exploration/outline.R")
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
   filter(year >= 1990)
 
-dog_travel <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv")
+dog_travel <- read_csv("data/dog_travel_data.csv")
 state_list <- tibble(abbreviation = state.abb, name = state.name)
 
 # load color name data
@@ -146,9 +134,7 @@ ui <- fluidPage(
                plotOutput("okabeito_plot")
       ))
       )
-
-)
-)
+))
 
 # Define server logic
 server <- function(input, output) {
