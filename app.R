@@ -11,12 +11,34 @@ library(colordistance) # our main package
 
 source("exploration/outline.R")
 
-# load data for sample plots
+# load + create data for sample plots
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
   filter(year >= 1990)
 
-dog_travel <- read_csv("data/dog_travel_data.csv")
 state_list <- tibble(abbreviation = state.abb, name = state.name)
+
+dog_travel <- read_csv(here::here("data", "dog_travel_data.csv")) %>%
+  group_by(contact_state) %>%
+  summarise(n = n()) %>%
+  right_join(state_list, by = c("contact_state" = "abbreviation")) %>%
+  mutate(name = str_to_lower(name)) %>%
+  left_join(map_data("state"), dogs, by = c("name" = "region"))
+
+brexit <- read_csv(here::here("data", "brexit.csv"), show_col_types = FALSE) %>%
+  filter(opinion != "Don't know") %>%
+  group_by(region, opinion) %>%
+  summarise(n = n(), .groups = "drop_last") %>%
+  mutate(perc = n / sum(n),
+         region = case_when(
+      region == "scot" ~ "Scotland",
+      region == "london" ~ "London",
+      region == "midlands_wales" ~ "Midlands / Wales",
+      region == "north" ~ "North",
+      TRUE ~ "Rest of South"
+    ),
+    region = factor(region, levels = c("London", "Rest of South", "Midlands / Wales", "North", "Scotland")),
+    opinion = factor(opinion, levels = c("Very well", "Fairly well", "Fairly badly", "Very badly"))
+  )
 
 # load color name data
 color_names <- read_csv(here::here("data", "color_names.csv"))
@@ -329,13 +351,7 @@ server <- function(input, output) {
   )
 
   # creates sequential base plot which is NOT reactive
-  sequential_plot <- dog_travel %>%
-    group_by(contact_state) %>%
-    summarise(n = n()) %>%
-    right_join(state_list, by = c("contact_state" = "abbreviation")) %>%
-    mutate(name = str_to_lower(name)) %>%
-    left_join(map_data("state"), dogs, by = c("name" = "region")) %>%
-    ggplot(mapping = aes(x = long, y = lat, group = group, fill = n)) +
+  sequential_plot <-  ggplot(dog_travel, mapping = aes(x = long, y = lat, group = group, fill = n)) +
     geom_polygon(color = "black") +
     labs(
       title = "Number of Dogs Available to Adopt in U.S. States",
@@ -345,9 +361,20 @@ server <- function(input, output) {
     theme_void() +
     theme(plot.title = element_text(size = 18, hjust = 0.5))
 
-  ## EVAN TODO:
-  # create sample plot for diverging
-  # create UI to choose color for diverging
+  # creates diverging base plot which is NOT reactive
+  diverging_plot <- ggplot(brexit, mapping = aes(x = perc, y = region, fill = opinion)) +
+    geom_col() +
+    labs(
+      x = "Percent",
+      y = NULL,
+      fill = "Opinion"
+    ) +
+    scale_x_continuous(labels = label_percent()) +
+    theme_minimal() +
+    theme(
+      legend.position = "top",
+      legend.direction = "horizontal"
+    )
 
 
   # output the base ggplot for discrete color palettes
@@ -361,8 +388,13 @@ server <- function(input, output) {
       sequential_plot +
         scale_fill_gradient(
           trans = "log10",
-          na.value = paste0("gray", (100 - input$gray_val))
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_colorbar()
         )
+    } else {
+      diverging_plot +
+        scale_fill_steps2(na.value = paste0("gray", (100 - input$gray_val)),
+                             guide = guide_legend(reverse = TRUE))
     }
   })
 
@@ -379,8 +411,15 @@ server <- function(input, output) {
           trans = "log10",
           low = ordered_hexes()[1],
           high = ordered_hexes()[input$clusters],
-          na.value = paste0("gray", (100 - input$gray_val))
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_colorbar()
         )
+    } else {
+      diverging_plot +
+        scale_fill_steps2(low = ordered_hexes()[1],
+                             high = ordered_hexes()[input$clusters],
+                             na.value = paste0("gray", (100 - input$gray_val)),
+                             guide = guide_legend(reverse = TRUE))
     }
   })
 
@@ -394,6 +433,12 @@ server <- function(input, output) {
         )
     } else if (input$example_type == "Sequential") {
       NULL
+    } else {
+      diverging_plot +
+        scale_fill_steps2(low = "#D55E00",
+                             high = "#0072B2",
+                             na.value = paste0("gray", (100 - input$gray_val)),
+                             guide = guide_legend(reverse = TRUE))
     }
   })
 
@@ -409,8 +454,15 @@ server <- function(input, output) {
         scale_fill_viridis_c(
           trans = "log10",
           option = "A",
-          na.value = paste0("gray", (100 - input$gray_val))
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_colorbar()
         )
+    } else {
+      diverging_plot +
+        scale_fill_steps2(low = "#FDE725",
+                             high = "#440154",
+                             na.value = paste0("gray", (100 - input$gray_val)),
+                             guide = guide_legend(reverse = TRUE))
     }
   })
 
