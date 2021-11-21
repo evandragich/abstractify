@@ -13,3 +13,5 @@ Sample plots inspired by HW3 Q4, ("Adopt, don’t shop"), HW4 Q1 ("Degrees over 
 [Source](https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx) for `bw_colors()` white/black cutoffs
 
 [Brexit Data](bit.ly/2lCJZVg)
+
+[Source](https://community.rstudio.com/t/download-the-output-of-shiny-with-the-download-button/24517) for Image Download output

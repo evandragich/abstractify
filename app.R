@@ -27,8 +27,9 @@ brexit <- read_csv(here::here("data", "brexit.csv"), show_col_types = FALSE) %>%
   filter(opinion != "Don't know") %>%
   group_by(region, opinion) %>%
   summarise(n = n(), .groups = "drop_last") %>%
-  mutate(perc = n / sum(n),
-         region = case_when(
+  mutate(
+    perc = n / sum(n),
+    region = case_when(
       region == "scot" ~ "Scotland",
       region == "london" ~ "London",
       region == "midlands_wales" ~ "Midlands / Wales",
@@ -133,38 +134,45 @@ ui <- fluidPage(
         tabPanel(
           title = "Plotting",
           textOutput("example_plot_description"),
-               radioButtons("example_type",
-                            "Choose Plot Type:",
-                            choices = c("Discrete", "Sequential", "Diverging"),
-                            selected = "Discrete"
-               ),
-               sliderInput("gray_val",
-                           "Adjust the darkness of the \"Other\" or NA Category",
-                           min = 10,
-                           max = 90,
-                           value = 30,
-                           step = 5
-               ),
-          selectInput("low_color",
-                      "Low Color:",
-                      choices = NULL
+          radioButtons("example_type",
+            "Choose Plot Type:",
+            choices = c("Discrete", "Sequential", "Diverging"),
+            selected = "Discrete"
           ),
-          selectInput("high_color",
-                      "High Color:",
-                      choices = NULL
+          conditionalPanel(
+            condition = "input.example_type != 'Discrete'",
+            sliderInput("gray_val",
+              "Adjust the darkness of the NA Category",
+              min = 10,
+              max = 90,
+              value = 30,
+              step = 5
+            ),
+            selectInput("low_color",
+              "Low Color:",
+              choices = NULL
+            ),
+            selectInput("high_color",
+              "High Color:",
+              choices = NULL
+            )
           ),
-
-               h2("PBN-ified Plot"),
-               plotOutput("colorized_plot"),
-               h2("Base color Plot"),
-               plotOutput("basic_plot"),
-               h2("Viridis Plot"),
-               plotOutput("viridis_plot"),
-               h2("Okabe-Ito Plot"),
-               plotOutput("okabeito_plot")
-      ))
+          h2("PBN-ified Plot"),
+          plotOutput("colorized_plot"),
+          h2("Base color Plot"),
+          plotOutput("basic_plot"),
+          h2("Viridis Plot"),
+          plotOutput("viridis_plot"),
+          conditionalPanel(
+            condition = "input.example_type != 'Discrete'",
+            h2("Okabe-Ito Plot"),
+            plotOutput("okabeito_plot")
+          )
+        )
       )
-))
+    )
+  )
+)
 
 # Define server logic
 server <- function(input, output, session) {
@@ -187,17 +195,6 @@ server <- function(input, output, session) {
       sample.size = FALSE, n = input$clusters
     )
   )
-
-  # function to lookup closest hex code from the named dictionary for any given rgb
-  find_closest <- function(my_r, my_g, my_b) {
-    temp <- color_names %>%
-      mutate(diff = abs(R - my_r) + abs(G - my_g) + abs(B - my_b)) %>%
-      arrange(diff) %>%
-      select(name) %>%
-      pull()
-
-    temp[1]
-  }
 
   # grab rgb values of cluster centers to feed into image later
   # this is a df with obs for every cluster, cols RGB vals and % of image
@@ -337,19 +334,21 @@ server <- function(input, output, session) {
   # update color choices for low value
   observe({
     updateSelectInput(session,
-                      "low_color",
-                      label = "Low Color:",
-                      choices = ordered_hexes(),
-                      selected = ordered_hexes()[1])
+      "low_color",
+      label = "Low Color:",
+      choices = ordered_hexes(),
+      selected = ordered_hexes()[1]
+    )
   })
 
   # update color choices for high value
   observe({
     updateSelectInput(session,
-                      "high_color",
-                      label = "High Color:",
-                      choices = ordered_hexes(),
-                      selected = ordered_hexes()[length(ordered_hexes())])
+      "high_color",
+      label = "High Color:",
+      choices = ordered_hexes(),
+      selected = ordered_hexes()[length(ordered_hexes())]
+    )
   })
 
   # create base discrete plot to be layered upon
@@ -358,12 +357,12 @@ server <- function(input, output, session) {
     degrees %>%
       arrange(desc(perc)) %>%
       mutate(field = fct_other(field,
-        keep = ordered_fields[1:input$clusters]
+        keep = ordered_fields[1:(input$clusters - 1)]
       )) %>%
       group_by(field, year) %>%
       summarise(perc = sum(perc), .groups = "drop_last") %>%
       ggplot(mapping = aes(x = year, y = perc, group = field, color = field)) +
-      geom_line() +
+      geom_line(size = 1) +
       labs(
         title = "Percentage of annual degrees awarded",
         subtitle = "from 1990 to 2015 in the US",
@@ -377,7 +376,7 @@ server <- function(input, output, session) {
   )
 
   # creates sequential base plot which is NOT reactive
-  sequential_plot <-  ggplot(dog_travel, mapping = aes(x = long, y = lat, group = group, fill = n)) +
+  sequential_plot <- ggplot(dog_travel, mapping = aes(x = long, y = lat, group = group, fill = n)) +
     geom_polygon(color = "black") +
     labs(
       title = "Number of Dogs Available to Adopt in U.S. States",
@@ -391,7 +390,10 @@ server <- function(input, output, session) {
   diverging_plot <- ggplot(brexit, mapping = aes(x = perc, y = region, fill = opinion)) +
     geom_col() +
     labs(
-      x = "Percent",
+      title = "How well or badly do you think the government are doing\n at handling Britain's exit from the European Union?",
+      subtitle = "YouGov Survey Results, 2-3 September 2019",
+      caption = "Source: bit.ly/2lCJZVg",
+      x = NULL,
       y = NULL,
       fill = "Opinion"
     ) +
@@ -419,8 +421,14 @@ server <- function(input, output, session) {
         )
     } else {
       diverging_plot +
-        scale_fill_steps2(na.value = paste0("gray", (100 - input$gray_val)),
-                             guide = guide_legend(reverse = TRUE))
+        scale_fill_manual(
+          values = c(
+            colorRampPalette(c("#00BFC4", "white"))(3)[1:2],
+            colorRampPalette(c("white", "#F8766D"))(3)[2:3]
+          ),
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_legend(reverse = TRUE)
+        )
     }
   })
 
@@ -429,7 +437,7 @@ server <- function(input, output, session) {
     if (input$example_type == "Discrete") {
       discrete_plot() +
         scale_color_manual(
-          values = c(cluster_lookup()$rgb_scaled, paste0("gray", (100 - input$gray_val))),
+          values = cluster_lookup()$rgb_scaled
         )
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -442,10 +450,14 @@ server <- function(input, output, session) {
         )
     } else {
       diverging_plot +
-        scale_fill_steps2(low = input$low_color,
-                             high = input$high_color,
-                             na.value = paste0("gray", (100 - input$gray_val)),
-                             guide = guide_legend(reverse = TRUE))
+        scale_fill_manual(
+          values = c(
+            colorRampPalette(c(input$low_color, "white"))(3)[1:2],
+            colorRampPalette(c("white", input$high_color))(3)[2:3]
+          ),
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_legend(reverse = TRUE)
+        )
     }
   })
 
@@ -461,10 +473,14 @@ server <- function(input, output, session) {
       NULL
     } else {
       diverging_plot +
-        scale_fill_steps2(low = "#D55E00",
-                             high = "#0072B2",
-                             na.value = paste0("gray", (100 - input$gray_val)),
-                             guide = guide_legend(reverse = TRUE))
+        scale_fill_manual(
+          values = c(
+            colorRampPalette(c("#D55E00", "white"))(3)[1:2],
+            colorRampPalette(c("white", "#0072B2"))(3)[2:3]
+          ),
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_legend(reverse = TRUE)
+        )
     }
   })
 
@@ -485,10 +501,14 @@ server <- function(input, output, session) {
         )
     } else {
       diverging_plot +
-        scale_fill_steps2(low = "#FDE725",
-                             high = "#440154",
-                             na.value = paste0("gray", (100 - input$gray_val)),
-                             guide = guide_legend(reverse = TRUE))
+        scale_fill_manual(
+          values = c(
+            colorRampPalette(c("#FDE725", "white"))(3)[1:2],
+            colorRampPalette(c("white", "#440154"))(3)[2:3]
+          ),
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_legend(reverse = TRUE)
+        )
     }
   })
 
@@ -497,7 +517,7 @@ server <- function(input, output, session) {
   })
 
   output$download_pxl <- downloadHandler(
-    filename = paste0("pixelated_image_", input$clusters, "_colors_", Sys.Date(), ".jpeg", sep = ""),
+    filename = paste0("pixelated_image_", input$clusters, "_colors_", Sys.Date(), ".jpeg"),
     contentType = "image/jpeg",
     content = function(file) {
       file.copy(ret(), file)
