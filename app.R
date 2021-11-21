@@ -3,7 +3,6 @@ library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # generalize beyond jpeg files
-library(palmerpenguins) # penguins dataset for sample plot
 library(colorblindr) # okabe-ito palette for sample plots
 library(colordistance) # our main package
 
@@ -146,6 +145,15 @@ ui <- fluidPage(
                            value = 30,
                            step = 5
                ),
+          selectInput("low_color",
+                      "Low Color:",
+                      choices = NULL
+          ),
+          selectInput("high_color",
+                      "High Color:",
+                      choices = NULL
+          ),
+
                h2("PBN-ified Plot"),
                plotOutput("colorized_plot"),
                h2("Base color Plot"),
@@ -159,7 +167,7 @@ ui <- fluidPage(
 ))
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
 
 
   # prevents errors when app is first started
@@ -326,6 +334,24 @@ server <- function(input, output) {
     "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`."
   })
 
+  # update color choices for low value
+  observe({
+    updateSelectInput(session,
+                      "low_color",
+                      label = "Low Color:",
+                      choices = ordered_hexes(),
+                      selected = ordered_hexes()[1])
+  })
+
+  # update color choices for high value
+  observe({
+    updateSelectInput(session,
+                      "high_color",
+                      label = "High Color:",
+                      choices = ordered_hexes(),
+                      selected = ordered_hexes()[length(ordered_hexes())])
+  })
+
   # create base discrete plot to be layered upon
   # only reactive change is number of non-lumped factors
   discrete_plot <- reactive(
@@ -409,15 +435,15 @@ server <- function(input, output) {
       sequential_plot +
         scale_fill_gradient(
           trans = "log10",
-          low = ordered_hexes()[1],
-          high = ordered_hexes()[input$clusters],
+          low = input$low_color,
+          high = input$high_color,
           na.value = paste0("gray", (100 - input$gray_val)),
           guide = guide_colorbar()
         )
     } else {
       diverging_plot +
-        scale_fill_steps2(low = ordered_hexes()[1],
-                             high = ordered_hexes()[input$clusters],
+        scale_fill_steps2(low = input$low_color,
+                             high = input$high_color,
                              na.value = paste0("gray", (100 - input$gray_val)),
                              guide = guide_legend(reverse = TRUE))
     }
