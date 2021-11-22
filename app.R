@@ -133,6 +133,7 @@ ui <- fluidPage(
         ),
         tabPanel(
           title = "Plotting",
+          fluid = TRUE,
           textOutput("example_plot_description"),
           textOutput("color_vector"),
           radioButtons("example_type",
@@ -158,16 +159,24 @@ ui <- fluidPage(
               choices = NULL
             )
           ),
-          h2("PBN-ified Plot"),
-          plotOutput("colorized_plot"),
-          h2("Base color Plot"),
-          plotOutput("basic_plot"),
-          h2("Viridis Plot"),
-          plotOutput("viridis_plot"),
-          conditionalPanel(
-            condition = "input.example_type != 'Discrete'",
-            h2("Okabe-Ito Plot"),
-            plotOutput("okabeito_plot")
+          fluidRow(
+            column(
+              6,
+              h2("PBN-ified Plot"),
+              plotOutput("colorized_plot"),
+              h2("Base color Plot"),
+              plotOutput("basic_plot")
+              ),
+            column(
+              6,
+              h2("Viridis Plot"),
+              plotOutput("viridis_plot"),
+              conditionalPanel(
+                condition = "input.example_type != 'Sequential'",
+                h2("Okabe-Ito Plot"),
+                plotOutput("okabeito_plot")
+                   )
+              )
           )
         )
       )
@@ -226,7 +235,7 @@ server <- function(input, output, session) {
   )
 
   output$color_vector <- renderText({
-    paste0(ordered_hexes(), ",")
+    paste0("'", ordered_hexes(), "',")
     })
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
