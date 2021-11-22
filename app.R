@@ -127,7 +127,7 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel(
           title = "Color Info",
-          plotOutput("colorspace_plot"),
+          plotOutput("pixels_plot"),
           reactableOutput("color_table"),
           textOutput("r_squared")
         ),
@@ -161,13 +161,14 @@ ui <- fluidPage(
           plotOutput("colorized_plot"),
           h2("Base color Plot"),
           plotOutput("basic_plot"),
-          h2("Viridis Plot"),
-          plotOutput("viridis_plot"),
+          h2("RColorBrewer Plot"),
+          plotOutput("colorbrewer_plot"),
           conditionalPanel(
-            condition = "input.example_type != 'Discrete'",
-            h2("Okabe-Ito Plot"),
-            plotOutput("okabeito_plot")
-          )
+            condition = "input.example_type != 'Diverging'",
+          h2("Viridis Plot"),
+          plotOutput("viridis_plot")),
+            h2("Colorspace Plot"),
+            plotOutput("colorspace_plot")
         )
       )
     ),
@@ -277,7 +278,7 @@ server <- function(input, output, session) {
     deleteFile = FALSE
   )
 
-  output$colorspace_plot <- renderPlot({
+  output$pixels_plot <- renderPlot({
     colordistance::plotPixels(my_path(),
       lower = NULL, upper = NULL,
       main = "Colorspace Plot"
@@ -466,36 +467,32 @@ server <- function(input, output, session) {
     }
   })
 
-  # output the ggplot with okabe ito colors for discrete color palettes
-  # fyi -- OkabeIto can only take 7 non-gray values, so will need guard
-  output$okabeito_plot <- renderPlot({
+
+  output$colorspace_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
-        scale_color_manual(
-          values = c(palette_OkabeIto[1:input$clusters], paste0("gray", (100 - input$gray_val))),
-        )
+        scale_color_discrete_qualitative()
     } else if (input$example_type == "Sequential") {
-      NULL
-    } else {
-      diverging_plot +
-        scale_fill_manual(
-          values = c(
-            colorRampPalette(c("#D55E00", "white"))(3)[1:2],
-            colorRampPalette(c("white", "#0072B2"))(3)[2:3]
-          ),
+      sequential_plot +
+        scale_fill_continuous_sequential(
+          trans = "log10",
           na.value = paste0("gray", (100 - input$gray_val)),
-          guide = guide_legend(reverse = TRUE)
+          guide = guide_colorbar()
         )
-    }
+    } else {
+        diverging_plot +
+          scale_fill_discrete_diverging(
+            na.value = paste0("gray", (100 - input$gray_val)),
+            guide = guide_legend(reverse = TRUE)
+          )
+      }
   })
 
   # output the ggplot with viridis colors for discrete color palettes
   output$viridis_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
-        scale_color_manual(
-          values = c(viridis_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
-        )
+        scale_color_viridis_d()
     } else if (input$example_type == "Sequential") {
       sequential_plot +
         scale_fill_viridis_c(
@@ -505,12 +502,27 @@ server <- function(input, output, session) {
           guide = guide_colorbar()
         )
     } else {
+      NULL
+    }
+  })
+
+  output$colorbrewer_plot <- renderPlot({
+    if (input$example_type == "Discrete") {
+      discrete_plot() +
+        scale_color_brewer(
+          type = "qual"
+        )
+    } else if (input$example_type == "Sequential") {
+      sequential_plot +
+        scale_fill_distiller(
+          trans = "log10",
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_colorbar()
+        )
+    } else {
       diverging_plot +
-        scale_fill_manual(
-          values = c(
-            colorRampPalette(c("#FDE725", "white"))(3)[1:2],
-            colorRampPalette(c("white", "#440154"))(3)[2:3]
-          ),
+        scale_fill_brewer(
+          type = "div",
           na.value = paste0("gray", (100 - input$gray_val)),
           guide = guide_legend(reverse = TRUE)
         )
