@@ -134,6 +134,7 @@ ui <- fluidPage(
         tabPanel(
           title = "Plotting",
           textOutput("example_plot_description"),
+          textOutput("color_vector"),
           radioButtons("example_type",
             "Choose Plot Type:",
             choices = c("Discrete", "Sequential", "Diverging"),
@@ -218,6 +219,10 @@ server <- function(input, output, session) {
       select(rgb_scaled) %>%
       pull()
   )
+
+  output$color_vector <- renderText({
+    paste0(ordered_hexes(), ",")
+    })
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
   output$r_squared <- renderText({
@@ -328,7 +333,9 @@ server <- function(input, output, session) {
 
   # description to explain example plot tab
   output$example_plot_description <- renderText({
-    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`."
+    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`.
+    \n
+    Paste the hexcodes to recreate the palette."
   })
 
   # update color choices for low value
