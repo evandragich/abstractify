@@ -3,7 +3,7 @@ library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # generalize beyond jpeg files
-#library(colorblindr) # okabe-ito palette for sample plots
+library(colorblindr) # okabe-ito palette for sample plots
 library(colordistance) # our main package
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
@@ -92,7 +92,8 @@ ui <- fluidPage(
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
-          )
+          ),
+          actionButton("action1", "Go" )
         ),
 
         # Show a plot of the generated distribution
