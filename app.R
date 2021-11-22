@@ -3,7 +3,7 @@ library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # generalize beyond jpeg files
-#library(colorblindr) # okabe-ito palette for sample plots
+library(colorblindr) # okabe-ito palette for sample plots
 library(colordistance) # our main package
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
@@ -92,7 +92,8 @@ ui <- fluidPage(
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
-          )
+          ),
+          actionButton("action1", "Go" )
         ),
 
         # Show a plot of the generated distribution
@@ -133,7 +134,9 @@ ui <- fluidPage(
         ),
         tabPanel(
           title = "Plotting",
+          fluid = TRUE,
           textOutput("example_plot_description"),
+          textOutput("color_vector"),
           radioButtons("example_type",
             "Choose Plot Type:",
             choices = c("Discrete", "Sequential", "Diverging"),
@@ -157,18 +160,28 @@ ui <- fluidPage(
               choices = NULL
             )
           ),
-          h2("PBN-ified Plot"),
-          plotOutput("colorized_plot"),
-          h2("Base color Plot"),
-          plotOutput("basic_plot"),
-          h2("RColorBrewer Plot"),
-          plotOutput("colorbrewer_plot"),
-          conditionalPanel(
-            condition = "input.example_type != 'Diverging'",
-          h2("Viridis Plot"),
-          plotOutput("viridis_plot")),
-            h2("Colorspace Plot"),
-            plotOutput("colorspace_plot")
+
+          fluidRow(
+            column(
+              6,
+              h2("PBN-ified Plot"),
+              plotOutput("colorized_plot"),
+              h2("Base color Plot"),
+              plotOutput("basic_plot")
+              ),
+            column(
+              6,
+              conditionalPanel(
+                condition = "input.example_type != 'Diverging'",
+              h2("Viridis Plot"),
+              plotOutput("viridis_plot")),
+              h2("RColorBrewer Plot"),
+              plotOutput("colorbrewer_plot"),
+                h2("Colorspace Plot"),
+                plotOutput("colorspace_plot")
+                   )
+              )
+          )
         )
       )
     ),
@@ -177,7 +190,7 @@ ui <- fluidPage(
                tabPanel(title = "Instructions"),
                tabPanel(title = "Writeup")
              ))
-  )
+
 )
 
 # Define server logic
@@ -224,6 +237,10 @@ server <- function(input, output, session) {
       select(rgb_scaled) %>%
       pull()
   )
+
+  output$color_vector <- renderText({
+    paste0("'", ordered_hexes(), "',")
+    })
 
   # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
   output$r_squared <- renderText({
@@ -334,7 +351,9 @@ server <- function(input, output, session) {
 
   # description to explain example plot tab
   output$example_plot_description <- renderText({
-    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`."
+    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`.
+    \n
+    Paste the hexcodes to recreate the palette."
   })
 
   # update color choices for low value
