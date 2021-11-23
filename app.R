@@ -2,9 +2,9 @@ library(shiny)
 library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
-library(magick) # generalize beyond jpeg files
-library(colorblindr) # okabe-ito palette for sample plots
-library(colordistance) # our main package
+library(magick) # image manipulation/metadata extraction
+library(colorspace) # sample plots
+library(colordistance) # color clustering and pixel plot
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 
@@ -96,7 +96,7 @@ ui <- fluidPage(
           actionButton("action1", "Go" )
         ),
 
-        # Show a plot of the generated distribution
+
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -206,8 +206,7 @@ server <- function(input, output, session) {
     }
   )
 
-  # turns out there was an implicit "sample size = 20000" argument! i was like how is the pixel
-  # count of a square image not a perfect square LOL. way slower now but still good!
+  # large object used to extract cluster hexes, pixelated image vector, and goodness of fit data
   my_colors <- reactive(
     colordistance::getKMeanColors(my_path(),
       lower = NULL, upper = NULL,
@@ -215,9 +214,19 @@ server <- function(input, output, session) {
     )
   )
 
-  # grab rgb values of cluster centers to feed into image later
-  # this is a df with obs for every cluster, cols RGB vals and % of image
-  # also has the closest named hex code given from above function
+  # function used in next value to find closest name for clustered hex colors
+  find_closest <- function(my_r, my_g, my_b) {
+    temp <- color_names %>%
+      mutate(diff = (R - my_r)^2 + (G - my_g)^2 + (B - my_b)^2) %>%
+      arrange(diff) %>%
+      select(name) %>%
+      pull()
+
+    temp[1]
+  }
+
+  # dataframe with an observation for every cluster
+  # columns are R, G, B vals, % of image comprised, and closest named color
   cluster_lookup <- reactive(
     my_colors() %>%
       extractClusters() %>%
@@ -229,7 +238,7 @@ server <- function(input, output, session) {
       mutate(closest = find_closest(R, G, B))
   )
 
-  # vector of ordered hex codes to find lightest/darkest for continuous plots
+  # vector of clustered hex codes arranged to find lightest/darkest for default values for continuous plots
   ordered_hexes <- reactive(
     cluster_lookup() %>%
       mutate(avg = sum(R, G, B)) %>%
@@ -238,11 +247,12 @@ server <- function(input, output, session) {
       pull()
   )
 
+  # vector of clustered hex codes displayed neatly to user for copy-paste access
   output$color_vector <- renderText({
     paste0("'", ordered_hexes(), "',")
     })
 
-  # get quantified goodness of fit; unrelated to rest of analysis but could be fun to display
+  # display quantified goodness of fit
   output$r_squared <- renderText({
     value <- ((1 - (my_colors()$tot.withinss / my_colors()$totss)) * 100) %>%
       round(digits = 1)
@@ -250,14 +260,14 @@ server <- function(input, output, session) {
   })
 
 
-  # obtains dimensions of original image to size first 2d of 3d array
+  # obtains dimensions of original image to size the first 2d of manipulated 3d array
   my_dim <- reactive(
     my_path() %>%
       image_read() %>%
       image_info()
   )
 
-
+  # display original image
   output$original_img <- renderImage(
     {
       list(src = my_path(), height = "200px")
@@ -265,9 +275,9 @@ server <- function(input, output, session) {
     # saves image after sending to UI
     deleteFile = FALSE
   )
-  # parses the cluster vector outputted from getKmeanColors() with
-  # cluster lookup table to create 3d array of pixelated image!
 
+
+  # converts cluster numbers to respective RGB values creating pixelated image
   pxl_img_array <- reactive(
     tibble(cluster = my_colors()$cluster) %>%
       left_join(cluster_lookup()) %>%
@@ -279,14 +289,15 @@ server <- function(input, output, session) {
       }
   )
 
-  # write image object. needs outside of pixelated_img for use when downloading
+  # write the image object created above; image is written separately here to allow
+  # for display and download
   ret <- reactive(
     pxl_img_array() %>%
       image_read() %>%
       image_write(tempfile(fileext = my_dim()$format), format = my_dim()$format)
   )
 
-
+  # display pixelated image
   output$pixelated_img <- renderImage(
     {
       list(src = ret(), contentType = paste0("image/", my_dim()$format), height = "200px")
@@ -295,6 +306,7 @@ server <- function(input, output, session) {
     deleteFile = FALSE
   )
 
+  # display plot of pixels in RGB space as outputted by colorspace
   output$pixels_plot <- renderPlot({
     colordistance::plotPixels(my_path(),
       lower = NULL, upper = NULL,
@@ -302,16 +314,7 @@ server <- function(input, output, session) {
     )
   })
 
-  find_closest <- function(my_r, my_g, my_b) {
-    temp <- color_names %>%
-      mutate(diff = (R - my_r)^2 + (G - my_g)^2 + (B - my_b)^2) %>%
-      arrange(diff) %>%
-      select(name) %>%
-      pull()
-
-    temp[1]
-  }
-
+  # function to find suitable white/black contrast for input hex code for reactable display
   hex_to_bw <- function(hex) {
     temp <- col2rgb(hex)[1, 1]^2 * .241 +
       col2rgb(hex)[2, 1]^2 * .691 +
@@ -321,10 +324,10 @@ server <- function(input, output, session) {
     ret
   }
 
+  # display reactable of image hexes and background colors, percentage of image comprised,
+  # and nearest named color
   output$color_table <- renderReactable({
     temp <- cluster_lookup() %>%
-      # works now, but minimal matching. will work on matching closest neighbor
-      # left_join(color_names, by = "rgb_scaled") %>%
       arrange(desc(Pct)) %>%
       mutate(
         Pct = paste0(round(Pct * 100, digits = 1), "%")
@@ -356,7 +359,7 @@ server <- function(input, output, session) {
     Paste the hexcodes to recreate the palette."
   })
 
-  # update color choices for low value
+  # update color choices for low value on sequential/diverging plots
   observe({
     updateSelectInput(session,
       "low_color",
@@ -366,7 +369,7 @@ server <- function(input, output, session) {
     )
   })
 
-  # update color choices for high value
+  # update color choices for high value on sequential/diverging plots
   observe({
     updateSelectInput(session,
       "high_color",
@@ -430,7 +433,7 @@ server <- function(input, output, session) {
     )
 
 
-  # output the base ggplot for discrete color palettes
+  # output the base ggplot
   output$basic_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
@@ -457,7 +460,7 @@ server <- function(input, output, session) {
     }
   })
 
-  # output the ggplot with our colors for discrete color palettes
+  # output the ggplot with our colors
   output$colorized_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
@@ -486,7 +489,7 @@ server <- function(input, output, session) {
     }
   })
 
-
+  # output the plot with colorspace package colors
   output$colorspace_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
@@ -507,7 +510,7 @@ server <- function(input, output, session) {
       }
   })
 
-  # output the ggplot with viridis colors for discrete color palettes
+  # output the ggplot with viridis colors
   output$viridis_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
@@ -525,6 +528,7 @@ server <- function(input, output, session) {
     }
   })
 
+  # output the plot with RColorbrewer colors
   output$colorbrewer_plot <- renderPlot({
     if (input$example_type == "Discrete") {
       discrete_plot() +
@@ -548,10 +552,12 @@ server <- function(input, output, session) {
     }
   })
 
+  # output our black and white outlined image from sourced function
   output$outline <- renderPlot({
     outline_func(my_colors()$cluster, c(my_dim()$height, my_dim()$width))
   })
 
+  # adds download capability for pixelated image
   output$download_pxl <- downloadHandler(
     filename = paste0("pixelated_image_", input$clusters, "_colors_", Sys.Date(), ".jpeg"),
     contentType = "image/jpeg",
