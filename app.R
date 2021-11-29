@@ -5,6 +5,7 @@ library(reactable) # color table
 library(magick) # image manipulation/metadata extraction
 library(colorspace) # sample plots
 library(colordistance) # color clustering and pixel plot
+library(bslib)
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 
@@ -55,11 +56,11 @@ ordered_fields <- degrees %>%
 
 # Define UI
 ui <- fluidPage(
-
+  theme = bs_theme(version = 4, bootswatch = "flatly"),
   # Application title
   titlePanel(
     h1(
-      "PBN-ify",
+      "Paint by Numbers",
       h4("Click \"Browse...\" to replace the default image with one of your own")
     )
   ),
@@ -88,7 +89,8 @@ ui <- fluidPage(
               "Marge Simpson" = "marge-simpson.jpeg",
               "Margaret Picture" = "MargaretReed.jpeg",
               "Evan Picture" = "sample-image.jpeg",
-              "Block Art" = "block-art.jpeg"
+              "Block Art" = "block-art.jpeg",
+              "Emely Picture" = "emely_gutierrez.jpg"
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
@@ -100,9 +102,10 @@ ui <- fluidPage(
           tabsetPanel(
             tabPanel(
               title = "Home",
-              h2("Welcome to PBNify!"),
+              h2("Welcome to Paint by Numbers"),
               p("How to use: select one our preset images or upload one of your
-                own, and choose a k value. You can explore the various tabs to
+                own, and use the slider bar to select how many colors you would
+                like to see in your image. You can explore the various tabs to
                 see the simplified version of your image and the outline
                 version. You can also see some sample color palettes to use in
                 ggplot!"),
