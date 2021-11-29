@@ -560,7 +560,7 @@ server <- function(input, output, session) {
   })
 
   output$outline <- renderPlot({
-    plot_outline(output_mat())
+    plot_outline(output_mat(), c(my_dim()$height, my_dim()$width))
   })
 
   output_image_mat <- reactive({
