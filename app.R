@@ -5,6 +5,7 @@ library(reactable) # color table
 library(magick) # image manipulation/metadata extraction
 library(colorspace) # sample plots
 library(colordistance) # color clustering and pixel plot
+library(rclipboard) # copying ordered hexes to user's clipboard
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 
@@ -61,7 +62,8 @@ ui <- fluidPage(
     h1(
       "PBN-ify",
       h4("Click \"Browse...\" to replace the default image with one of your own")
-    )
+    ),
+    windowTitle = "PBN-ify"
   ),
   tabsetPanel(
     tabPanel(
@@ -136,6 +138,7 @@ ui <- fluidPage(
           fluid = TRUE,
           textOutput("example_plot_description"),
           textOutput("color_vector"),
+          uiOutput("clip"),
           radioButtons("example_type",
             "Choose Plot Type:",
             choices = c("Discrete", "Sequential", "Diverging"),
@@ -251,6 +254,14 @@ server <- function(input, output, session) {
     paste0("'", ordered_hexes(), "',")
     })
 
+  # "copy to clipboard" button for color_vector() abvoe
+  output$clip <- renderUI({
+    rclipButton("clipbtn",
+                "Copy to Clipboard",
+                paste0("'", ordered_hexes(), "',"),
+                icon("clipboard"))
+  })
+
   # display quantified goodness of fit
   output$r_squared <- renderText({
     value <- ((1 - (my_colors()$tot.withinss / my_colors()$totss)) * 100) %>%
@@ -319,8 +330,7 @@ server <- function(input, output, session) {
       col2rgb(hex)[2, 1]^2 * .691 +
       col2rgb(hex)[3, 1]^2 * .068
 
-    ret <- if_else(temp > 16900, "#000000", "#FFFFFF")
-    ret
+    if_else(temp > 16900, "#000000", "#FFFFFF")
   }
 
   # display reactable of image hexes and background colors, percentage of image comprised,
@@ -355,7 +365,15 @@ server <- function(input, output, session) {
   output$example_plot_description <- renderText({
     "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`.
     \n
-    Paste the hexcodes to recreate the palette."
+    \n
+    Paste the hexcodes to recreate the palette.
+    \n
+    \n
+    (If you have chosen alternative
+    \"low\" or \"high\" colors for the Sequential or Diverging plots, you may need
+    to reorder the hex codes for use.)
+    \n
+    \n "
   })
 
   # update color choices for low value on sequential/diverging plots
