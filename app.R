@@ -119,7 +119,8 @@ ui <- fluidPage(
             ),
             tabPanel(
               title = "Outline",
-              plotOutput("outline")
+              plotOutput("outline"),
+              downloadButton("download_outline", "Download outline image")
             )
           )
         )
@@ -189,7 +190,6 @@ ui <- fluidPage(
     ),
     tabPanel(title = "About",
              tabsetPanel(
-               tabPanel(title = "Instructions"),
                tabPanel(title = "Writeup")
              ))
 
@@ -554,10 +554,32 @@ server <- function(input, output, session) {
     }
   })
 
-  # output our black and white outlined image from sourced function
-  output$outline <- renderPlot({
+  output_mat <- reactive({
     outline_func(my_colors()$cluster, c(my_dim()$height, my_dim()$width))
   })
+
+  output$outline <- renderPlot({
+    plot_outline(output_mat())
+  })
+
+  output_image_mat <- reactive({
+    rbg_outline(output_mat())
+  })
+
+  ret1 <- reactive({
+    as.raw(c(output_mat(),output_mat(),output_mat())) %>%
+      image_read() %>%
+      image_write(tempfile(fileext = ".jpeg"), format = my_dim()$format)
+  })
+
+  #download doesn't work yet
+  output$outline_img <- renderImage(
+    {
+      list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "200px")
+    },
+    # saves image after sending to UI
+    deleteFile = FALSE
+  )
 
   # adds download capability for pixelated image
   output$download_pxl <- downloadHandler(
@@ -567,6 +589,15 @@ server <- function(input, output, session) {
       file.copy(ret(), file)
     }
   )
+
+  output$download_outline <- downloadHandler(
+    filename = paste0("outline_image_", Sys.Date(), ".jpeg"),
+    contentType = "image/jpeg",
+    content = function(file) {
+      file.copy(ret1(), file)
+    }
+  )
+
 }
 
 # Run the application
