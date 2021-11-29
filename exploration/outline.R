@@ -43,9 +43,21 @@ bw_colors <- tibble(r = c(0,1), g = c(0,1), b = c(0,1)) %>%
   pull()
 
 outline_func <- function(cluster_vector, im_dim) {
-  # does not return anything, simply plots the image -- maybe change this
   block_matrix <- matrix(cluster_vector, nrow = im_dim[1], ncol = im_dim[2])
   block_matrix <- t(apply(block_matrix, 2, rev))
-  alt_image <- image(z = boundary_func(block_matrix, im_dim), col = bw_colors)
+  return(block_matrix)
 }
 
+plot_outline <- function(mat, my_dim){
+  if(my_dim[1] < 500){
+    alt_image <- image(z = mat, col = bw_colors)
+  }
+    else{
+      alt_image <- image(z = boundary_func(mat, my_dim), col = bw_colors)
+      }
+}
+
+rbg_outline <- function(mat){
+  rgb_mat <- c(mat, mat, mat)
+  return(rgb_mat)
+}

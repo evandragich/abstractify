@@ -6,6 +6,7 @@ library(magick) # image manipulation/metadata extraction
 library(colorspace) # sample plots
 library(colordistance) # color clustering and pixel plot
 library(rclipboard) # copying ordered hexes to user's clipboard
+library(bslib) # Shiny themes
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 
@@ -56,11 +57,11 @@ ordered_fields <- degrees %>%
 
 # Define UI
 ui <- fluidPage(
-
+  theme = bs_theme(version = 4, bootswatch = "flatly"),
   # Application title
   titlePanel(
     h1(
-      "PBN-ify",
+      "Paint by Numbers",
       h4("Click \"Browse...\" to replace the default image with one of your own")
     ),
     windowTitle = "PBN-ify"
@@ -90,7 +91,8 @@ ui <- fluidPage(
               "Marge Simpson" = "marge-simpson.jpeg",
               "Margaret Picture" = "MargaretReed.jpeg",
               "Evan Picture" = "sample-image.jpeg",
-              "Block Art" = "block-art.jpeg"
+              "Block Art" = "block-art.jpeg",
+              "Emely Picture" = "emely_gutierrez.jpg"
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
@@ -102,9 +104,10 @@ ui <- fluidPage(
           tabsetPanel(
             tabPanel(
               title = "Home",
-              h2("Welcome to PBNify!"),
+              h2("Welcome to Paint by Numbers"),
               p("How to use: select one our preset images or upload one of your
-                own, and choose a k value. You can explore the various tabs to
+                own, and use the slider bar to select how many colors you would
+                like to see in your image. You can explore the various tabs to
                 see the simplified version of your image and the outline
                 version. You can also see some sample color palettes to use in
                 ggplot!"),
@@ -118,7 +121,8 @@ ui <- fluidPage(
             ),
             tabPanel(
               title = "Outline",
-              plotOutput("outline")
+              plotOutput("outline"),
+              downloadButton("download_outline", "Download outline image")
             )
           )
         )
@@ -138,6 +142,7 @@ ui <- fluidPage(
           fluid = TRUE,
           textOutput("example_plot_description"),
           textOutput("color_vector"),
+          rclipboardSetup(), # activates clipboard.js
           uiOutput("clip"),
           radioButtons("example_type",
             "Choose Plot Type:",
@@ -189,7 +194,6 @@ ui <- fluidPage(
     ),
     tabPanel(title = "About",
              tabsetPanel(
-               tabPanel(title = "Instructions"),
                tabPanel(title = "Writeup")
              ))
 
@@ -569,10 +573,32 @@ server <- function(input, output, session) {
     }
   })
 
-  # output our black and white outlined image from sourced function
-  output$outline <- renderPlot({
+  output_mat <- reactive({
     outline_func(my_colors()$cluster, c(my_dim()$height, my_dim()$width))
   })
+
+  output$outline <- renderPlot({
+    plot_outline(output_mat(), c(my_dim()$height, my_dim()$width))
+  })
+
+  output_image_mat <- reactive({
+    rbg_outline(output_mat())
+  })
+
+  ret1 <- reactive({
+    as.raw(c(output_mat(),output_mat(),output_mat())) %>%
+      image_read() %>%
+      image_write(tempfile(fileext = ".jpeg"), format = my_dim()$format)
+  })
+
+  #download doesn't work yet
+  output$outline_img <- renderImage(
+    {
+      list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "200px")
+    },
+    # saves image after sending to UI
+    deleteFile = FALSE
+  )
 
   # adds download capability for pixelated image
   output$download_pxl <- downloadHandler(
@@ -582,6 +608,15 @@ server <- function(input, output, session) {
       file.copy(ret(), file)
     }
   )
+
+  output$download_outline <- downloadHandler(
+    filename = paste0("outline_image_", Sys.Date(), ".jpeg"),
+    contentType = "image/jpeg",
+    content = function(file) {
+      file.copy(ret1(), file)
+    }
+  )
+
 }
 
 # Run the application
