@@ -93,7 +93,6 @@ ui <- fluidPage(
             selected = "sample-image.jpeg",
             multiple = FALSE
           ),
-          actionButton("action1", "Go" )
         ),
 
 
