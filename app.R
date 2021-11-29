@@ -58,6 +58,7 @@ ordered_fields <- degrees %>%
 ui <- fluidPage(
   theme = bs_theme(version = 4, bootswatch = "flatly"),
   # Application title
+  navbarPage(
   titlePanel(
     h1(
       "Paint by Numbers",
@@ -104,9 +105,9 @@ ui <- fluidPage(
               title = "Home",
               h2("Welcome to Paint by Numbers"),
               p("How to use: select one our preset images or upload one of your
-                own, and use the slider bar to select how many colors you would
-                like to see in your image. You can explore the various tabs to
-                see the simplified version of your image and the outline
+                own. Use the slider bar to select how many colors you would like
+                to see in your simplified image. You can explore the various tabs
+                to see the simplified version of your image and the outline
                 version. You can also see some sample color palettes to use in
                 ggplot!"),
               p("Your image:"),
@@ -194,7 +195,7 @@ ui <- fluidPage(
              ))
 
 )
-
+)
 # Define server logic
 server <- function(input, output, session) {
 
