@@ -67,7 +67,7 @@ ui <- fluidPage(
     ),
     windowTitle = "PBN-ify"
   ),
-  tabsetPanel(
+ tabsetPanel(
     tabPanel(
       title = "PBN",
       # Sidebar with a slider input for number of bins
@@ -124,14 +124,14 @@ ui <- fluidPage(
               title = "Outline",
               plotOutput("outline"),
               downloadButton("download_outline", "Download outline image")
-            )
+           )
           )
         )
       )
     ),
     tabPanel(
       title = "Color Palette",
-      tabsetPanel(
+     tabsetPanel(
         tabPanel(
           title = "Color Info",
           plotOutput("pixels_plot"),
