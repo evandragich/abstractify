@@ -54,7 +54,10 @@ ordered_fields <- degrees %>%
   select(field) %>%
   pull()
 
-
+#### suggestions for aesthetics of the UI
+# everything that is currently in the "tabsets" should become part of a navbar
+# see this link for an example https://shiny.rstudio.com/gallery/navbar-example.html
+#keep slider bar permanently on the left
 # Define UI
 ui <- fluidPage(
   theme = bs_theme(version = 4, bootswatch = "flatly"),
