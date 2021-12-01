@@ -136,13 +136,13 @@ ui <- fluidPage(
           title = "Color Info",
           plotOutput("pixels_plot"),
           reactableOutput("color_table"),
-          textOutput("r_squared")
+          htmlOutput("r_squared")
         ),
         tabPanel(
           title = "Plotting",
           fluid = TRUE,
-          textOutput("example_plot_description"),
-          textOutput("color_vector"),
+          htmlOutput("example_plot_description"),
+          htmlOutput("color_vector"),
           rclipboardSetup(), # activates clipboard.js
           uiOutput("clip"),
           radioButtons("example_type",
@@ -256,14 +256,16 @@ server <- function(input, output, session) {
 
   # vector of clustered hex codes displayed neatly to user for copy-paste access
   output$color_vector <- renderText({
-    paste0("'", ordered_hexes(), "',")
+    paste0(paste0("\"", ordered_hexes()[c(1:(length(ordered_hexes()) - 1))], "\", "),
+           "\"", ordered_hexes()[length(ordered_hexes())], "\"")
     })
 
   # "copy to clipboard" button for color_vector() abvoe
   output$clip <- renderUI({
     rclipButton("clipbtn",
                 "Copy to Clipboard",
-                paste0("'", ordered_hexes(), "',"),
+                paste0(paste0("\"", ordered_hexes()[c(1:(length(ordered_hexes()) - 1))], "\", "),
+                       "\"", ordered_hexes()[length(ordered_hexes())], "\""),
                 icon("clipboard"))
   })
 
@@ -325,7 +327,8 @@ server <- function(input, output, session) {
   output$pixels_plot <- renderPlot({
     colordistance::plotPixels(my_path(),
       lower = NULL, upper = NULL,
-      main = "Colorspace Plot"
+      main = "Colorspace Plot",
+      asp = 0.618
     )
   })
 
@@ -369,16 +372,13 @@ server <- function(input, output, session) {
   # description to explain example plot tab
   output$example_plot_description <- renderText({
     "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`.
-    \n
-    \n
+    <br><br>
     Paste the hexcodes to recreate the palette.
-    \n
-    \n
-    (If you have chosen alternative
+    <br><br>
+    <i>(If you have chosen alternative
     \"low\" or \"high\" colors for the Sequential or Diverging plots, you may need
-    to reorder the hex codes for use.)
-    \n
-    \n "
+    to reorder the hex codes for use.)</i>
+    <br><br>"
   })
 
   # update color choices for low value on sequential/diverging plots
@@ -422,7 +422,8 @@ server <- function(input, output, session) {
       ) +
       scale_y_continuous(labels = label_percent()) +
       theme_minimal() +
-      theme(legend.position = "top")
+      theme(legend.position = "top",
+            aspect.ratio = 0.618)
   )
 
   # creates sequential base plot which is NOT reactive
@@ -434,7 +435,8 @@ server <- function(input, output, session) {
       fill = "Dogs"
     ) +
     theme_void() +
-    theme(plot.title = element_text(size = 18, hjust = 0.5))
+    theme(plot.title = element_text(size = 18, hjust = 0.5),
+          aspect.ratio = 0.618)
 
   # creates diverging base plot which is NOT reactive
   diverging_plot <- ggplot(brexit, mapping = aes(x = perc, y = region, fill = opinion)) +
@@ -451,7 +453,8 @@ server <- function(input, output, session) {
     theme_minimal() +
     theme(
       legend.position = "top",
-      legend.direction = "horizontal"
+      legend.direction = "horizontal",
+      aspect.ratio = 0.618
     )
 
 
