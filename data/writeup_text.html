@@ -1,0 +1,26 @@
+<h4>
+  Introduction
+  </h4>
+  <p> Everyone has the ability to express themselves through art, but some of us lack the technical skills to create an aesthetically-pleasing piece. Novice artists can use paint-by-numbers as an elegant solution - one can practice their artistic skills while still creating something that elicits pride. Unfortunately, paint-by-numbers has a major flaw - the need to use someone else’s template restricts the imagination of the artist and limits the possible subjects that one can create. What if an artist could choose their own image and transform it into a personal paint-by-numbers kit with a set number of colors and an outline? Our project attempts to answer this question in the form of a Shiny Application which takes as input an image file from the user. From there, it simplifies the image into a user-selected number of distinct colors and outputs the abstract image, the PBN outline, color analytics, and custom color palettes.
+In order to showcase our color palette, we use visualizations constructed from three datasets used previously in the course: the YouGov `brexit.csv` survey results, the `BA_degrees` awards data, and the TidyTuesday `dog_travel.csv` dog adoption figures. As sample images, we have included four head shots of our team, an abstract art piece, and a Simpsons image.
+</p>
+<h4>
+  PBN Processing
+</h4>
+<p>
+  Paint-by-numbers was invented in the early 1950s and relied upon very abstract art styles that required few distinct colors.. As the public became more demanding - seeking templates for famous pieces and more realistic styles - the color requirements began to grow as well. Even today,  paint-by-number kits struggle to show both high levels of detail and realistic low-contrast color shifts in the same kit without an unwieldy number of distinct shades. Our application approaches the paint-by-numbers process with color minimization as a priority - the number of desired colors is a user-input and has a maximum of ten. Our choice to minimize colors means that our application cannot preserve all of the fine detail in realistic images and thus creates a more abstract version of the original.
+  </p>
+<h4>
+  Analytics
+</h4>
+<h4>
+  Custom Palettes & Example Visualizations
+</h4>
+<p>
+  In this tab, users can visualize the set of extracted colors in various sample plots and compare to commonly used packages for color palettes in R. The header of this page displays the selected hex codes separated by quotation marks and commas for easy insertion into a color or fill scale in ggplot. There is also a button to copy this text to the clipboard directly. The body of this page contains a series of similar plots, each only differing by color palette. Users can click the radio buttons to toggle through three plots, each labeled by the type of color scale most appropriate for visualizing the data: “Discrete", "Sequential", and "Diverging." For sequential and diverging plots, users also have the option to choose which colors from the palette should represent the low and high ends of the color scale on the plot. The default values for these ends are the lightest and darkest hex codes from the extracted palette, respectively, as determined by the sum of the RGB components. For sequential plots, they can also adjust the darkness of the gray “Other” category. After manipulating these values, users can compare the generated plot against the default palettes from commonly used color packages in R. For all plots, these include base ggplot2 colors, the RColorBrewer package, and the colorspace package. The viridis package is also displayed only for categorical and sequential plots, as there is no default diverging color scale from the viridis package.
+	The content of the plots is a throwback to various homework assignments for this course. Specifically, the categorical plot is a modified version of homework 4, question 1 ("Degrees over time"), the sequential plot is a recreation of homework 3, question 4 ("Adopt, don’t shop"),  and the diverging plot is a recreation of the first plot of the composition from homework 4, question 5 ("Brexit"). We chose these plots to allow our primary users--our classmates in this course, who are familiar with these data--to focus on the color scale and visual components as they browse the plots, rather than spend significant time making sense of the data and its context.
+</p>
+<h4>
+  Discussion
+
+</h4>

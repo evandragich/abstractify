@@ -187,26 +187,7 @@ ui <- fluidPage(
             ),
             tabPanel(
               title = "About",
-              p("Everyone has the ability to express themselves through art, but
-              some of us lack the technical skills to create an
-              aesthetically-pleasing piece. Novice artists can use
-              paint-by-numbers as an elegant solution - one can practice their
-              artistic skills while still creating something that elicits pride.
-              Unfortunately, paint-by-numbers has a major flaw - the need to use
-              someone else’s template restricts the imagination of the artist
-              and limits the possible subjects that one can create. What if an
-              artist could choose their own image and transform it into a
-              personal paint-by-numbers? Our project attempts to answer this
-              question in the form of a Shiny Application which takes as input
-              an image file from the user. From there, it simplifies the image
-              into a user-selected number of distinct colors and outputs the
-              simplified image, the PBN outline, color analytics, and custom
-              color palettes.
-              In order to showcase our color palette, we use visualizations
-              constructed from three datasets used previously in the course: the
-              YouGov `brexit.csv` survey results, the `BA_degrees` awards data,
-              and the TidyTuesday `dog_travel.csv` dog adoption figures."
-              )
+              includeHTML("data/writeup_text.html")
             )
           )
         )
