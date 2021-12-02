@@ -176,8 +176,11 @@ ui <- fluidPage(
                     h2("Viridis Plot"),
                     plotOutput("viridis_plot")
                   ),
+                  conditionalPanel(
+                    condition = "input.clusters <= 8 || input.example_type != 'Categorical'",
                   h2("RColorBrewer Plot"),
-                  plotOutput("colorbrewer_plot"),
+                  plotOutput("colorbrewer_plot")
+                  ),
                   h2("Colorspace Plot"),
                   plotOutput("colorspace_plot")
                 )
@@ -456,11 +459,15 @@ server <- function(input, output, session) {
         y = "Percent",
         color = "Field"
       ) +
+      guides(
+        color = guide_legend(ncol = 3, byrow = TRUE)
+      ) +
       scale_y_continuous(labels = label_percent()) +
       theme_minimal() +
       theme(
         legend.position = "top",
-        aspect.ratio = 0.618
+        legend.box = "vertical",
+        aspect.ratio = 0.618,
       )
   )
 
@@ -596,10 +603,14 @@ server <- function(input, output, session) {
   # output the plot with RColorbrewer colors
   output$colorbrewer_plot <- renderPlot({
     if (input$example_type == "Categorical") {
+      if(input$clusters > 8) { NULL }
+      else {
       categorical_plot() +
         scale_color_brewer(
           type = "qual"
+
         )
+      }
     } else if (input$example_type == "Sequential") {
       sequential_plot +
         scale_fill_distiller(
