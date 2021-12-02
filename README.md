@@ -8,7 +8,7 @@ gives the user a variety of outputs based on their image such as the abstract
 image, the image outline, a custom color palette which they can then download and 
 use in their own ggplots, and finally they can see the color palette used in sample 
 ggplots which utilize the bachelor degrees, dog adoption, and brexit data sets. 
-Explore the app here: *insert link of deployed app* 
+Explore the app here: [bit.ly/abstractify](https://bit.ly/abstractify) 
 
 # Repo Organization 
 The data folder contains the sample images, the proposal folder contains our 
