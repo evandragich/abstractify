@@ -3,8 +3,8 @@ library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # image manipulation/metadata extraction
-library(colorspace) # sample plots
-library(maps)
+library(colorspace) # sample plots color scale
+library(maps) # sequential sample plot map data
 library(colordistance) # color clustering and pixel plot
 library(rclipboard) # copying ordered hexes to user's clipboard
 library(bslib) # Shiny themes
@@ -149,7 +149,10 @@ ui <- fluidPage(
                   value = 30,
                   step = 5
                 ),
-                htmlOutput("copyable_gray"),
+                htmlOutput("copyable_gray")
+              ),
+              conditionalPanel(
+                condition = "input.example_type != 'Categorical'",
                 selectInput("low_color",
                   "Low Color:",
                   choices = NULL
@@ -494,7 +497,7 @@ server <- function(input, output, session) {
     if (input$example_type == "Categorical") {
       categorical_plot() +
         scale_color_manual(
-          values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val)))
+          values = c(hue_pal()(input$clusters))
         )
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -618,7 +621,10 @@ server <- function(input, output, session) {
 
   output$outline <- renderPlot({
     plot_outline(output_mat(), c(my_dim()$height, my_dim()$width))
-  })
+  },
+  height = function() {if_else(my_dim()$height > 500, my_dim()$height, as.integer(my_dim()$height * 2))},
+  width = function() {if_else(my_dim()$height > 500, my_dim()$width, as.integer(my_dim()$width * 2))}
+  )
 
   output_image_mat <- reactive({
     rbg_outline(output_mat())
