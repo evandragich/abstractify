@@ -10,7 +10,7 @@ library(bslib) # Shiny themes
 
 # https://cran.r-project.org/web/packages/magick/vignettes/intro.html#Cut_and_edit
 
-source("exploration/outline.R")
+source("scripts/outline.R")
 
 # load + create data for sample plots
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
