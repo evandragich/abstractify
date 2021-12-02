@@ -4,6 +4,7 @@ library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # image manipulation/metadata extraction
 library(colorspace) # sample plots
+library(maps)
 library(colordistance) # color clustering and pixel plot
 library(rclipboard) # copying ordered hexes to user's clipboard
 library(bslib) # Shiny themes
