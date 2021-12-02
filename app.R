@@ -305,7 +305,7 @@ server <- function(input, output, session) {
     {
       list(src = my_path(), height = "200px")
     },
-    alt = "The raw, original image, either uploaded by user or selected from one of the defaults.",
+    #alt = "The raw, original image, either uploaded by user or selected from one of the defaults.",
     # saves image after sending to UI
     deleteFile = FALSE
   )
