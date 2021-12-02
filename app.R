@@ -139,11 +139,11 @@ ui <- fluidPage(
               uiOutput("clip"),
               radioButtons("example_type",
                 "Choose Plot Type:",
-                choices = c("Discrete", "Sequential", "Diverging"),
-                selected = "Discrete"
+                choices = c("Categorical", "Sequential", "Diverging"),
+                selected = "Categorical"
               ),
               conditionalPanel(
-                condition = "input.example_type != 'Discrete'",
+                condition = "input.example_type == 'Sequential'",
                 sliderInput("gray_val",
                   "Adjust the darkness of the NA Category",
                   min = 10,
@@ -417,9 +417,9 @@ server <- function(input, output, session) {
     )
   })
 
-  # create base discrete plot to be layered upon
+  # create base categorical plot to be layered upon
   # only reactive change is number of non-lumped factors
-  discrete_plot <- reactive(
+  categorical_plot <- reactive(
     degrees %>%
       arrange(desc(perc)) %>%
       mutate(field = fct_other(field,
@@ -480,8 +480,8 @@ server <- function(input, output, session) {
 
   # output the base ggplot
   output$basic_plot <- renderPlot({
-    if (input$example_type == "Discrete") {
-      discrete_plot() +
+    if (input$example_type == "Categorical") {
+      categorical_plot() +
         scale_color_manual(
           values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val)))
         )
@@ -507,8 +507,8 @@ server <- function(input, output, session) {
 
   # output the ggplot with our colors
   output$colorized_plot <- renderPlot({
-    if (input$example_type == "Discrete") {
-      discrete_plot() +
+    if (input$example_type == "Categorical") {
+      categorical_plot() +
         scale_color_manual(
           values = cluster_lookup()$rgb_scaled
         )
@@ -536,8 +536,8 @@ server <- function(input, output, session) {
 
   # output the plot with colorspace package colors
   output$colorspace_plot <- renderPlot({
-    if (input$example_type == "Discrete") {
-      discrete_plot() +
+    if (input$example_type == "Categorical") {
+      categorical_plot() +
         scale_color_discrete_qualitative()
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -557,8 +557,8 @@ server <- function(input, output, session) {
 
   # output the ggplot with viridis colors
   output$viridis_plot <- renderPlot({
-    if (input$example_type == "Discrete") {
-      discrete_plot() +
+    if (input$example_type == "Categorical") {
+      categorical_plot() +
         scale_color_viridis_d()
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -575,8 +575,8 @@ server <- function(input, output, session) {
 
   # output the plot with RColorbrewer colors
   output$colorbrewer_plot <- renderPlot({
-    if (input$example_type == "Discrete") {
-      discrete_plot() +
+    if (input$example_type == "Categorical") {
+      categorical_plot() +
         scale_color_brewer(
           type = "qual"
         )
