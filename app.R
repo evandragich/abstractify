@@ -13,6 +13,8 @@ library(bslib) # Shiny themes
 
 source("scripts/outline.R")
 
+options(shiny.maxRequestSize = .2*1024^2)
+
 # load + create data for sample plots
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
   filter(year >= 1990)
