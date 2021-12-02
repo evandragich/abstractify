@@ -60,9 +60,7 @@ ordered_fields <- degrees %>%
 # keep slider bar permanently on the left
 # Define UI
 ui <- fluidPage(
-  theme = bs_theme(version = 4, bootswatch = "flatly"),
-  # Application title
-  navbarPage(
+    theme = bs_theme(version = 4, bootswatch = "flatly"),
     titlePanel(
       h1(
         "Paint by Numbers",
@@ -193,7 +191,7 @@ ui <- fluidPage(
         )
     )
   )
-)
+
 
 
 # Define server logic
