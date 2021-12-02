@@ -57,22 +57,20 @@ ordered_fields <- degrees %>%
 #### suggestions for aesthetics of the UI
 # everything that is currently in the "tabsets" should become part of a navbar
 # see this link for an example https://shiny.rstudio.com/gallery/navbar-example.html
-#keep slider bar permanently on the left
+# keep slider bar permanently on the left
 # Define UI
 ui <- fluidPage(
   theme = bs_theme(version = 4, bootswatch = "flatly"),
   # Application title
   navbarPage(
-  titlePanel(
-    h1(
-      "Paint by Numbers",
-      h4("Click \"Browse...\" to replace the default image with one of your own")
+    titlePanel(
+      h1(
+        "Paint by Numbers",
+        h4("Click \"Browse...\" to replace the default image with one of your own")
+      ),
+      windowTitle = "PBN-ify"
     ),
-    windowTitle = "PBN-ify"
-  ),
- tabsetPanel(
-    tabPanel(
-      title = "PBN",
+    tabsetPanel(
       # Sidebar with a slider input for number of bins
       sidebarLayout(
         sidebarPanel(
@@ -100,10 +98,8 @@ ui <- fluidPage(
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
-          ),
+          )
         ),
-
-
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -127,82 +123,80 @@ ui <- fluidPage(
               title = "Outline",
               plotOutput("outline"),
               downloadButton("download_outline", "Download outline image")
-           )
-          )
-        )
-      )
-    ),
-    tabPanel(
-      title = "Color Palette",
-     tabsetPanel(
-        tabPanel(
-          title = "Color Info",
-          plotOutput("pixels_plot"),
-          reactableOutput("color_table"),
-          htmlOutput("r_squared")
-        ),
-        tabPanel(
-          title = "Plotting",
-          fluid = TRUE,
-          htmlOutput("example_plot_description"),
-          htmlOutput("color_vector"),
-          rclipboardSetup(), # activates clipboard.js
-          uiOutput("clip"),
-          radioButtons("example_type",
-            "Choose Plot Type:",
-            choices = c("Discrete", "Sequential", "Diverging"),
-            selected = "Discrete"
-          ),
-          conditionalPanel(
-            condition = "input.example_type != 'Discrete'",
-            sliderInput("gray_val",
-              "Adjust the darkness of the NA Category",
-              min = 10,
-              max = 90,
-              value = 30,
-              step = 5
             ),
-            selectInput("low_color",
-              "Low Color:",
-              choices = NULL
+            tabPanel(
+              title = "Color Palette: Info",
+              plotOutput("pixels_plot"),
+              reactableOutput("color_table"),
+              htmlOutput("r_squared")
             ),
-            selectInput("high_color",
-              "High Color:",
-              choices = NULL
-            )
-          ),
-
-          fluidRow(
-            column(
-              6,
-              h2("PBN-ified Plot"),
-              plotOutput("colorized_plot"),
-              h2("Base color Plot"),
-              plotOutput("basic_plot")
+            tabPanel(
+              title = "Color Palette: Plotting",
+              fluid = TRUE,
+              htmlOutput("example_plot_description"),
+              htmlOutput("color_vector"),
+              rclipboardSetup(), # activates clipboard.js
+              uiOutput("clip"),
+              radioButtons("example_type",
+                "Choose Plot Type:",
+                choices = c("Discrete", "Sequential", "Diverging"),
+                selected = "Discrete"
               ),
-            column(
-              6,
               conditionalPanel(
-                condition = "input.example_type != 'Diverging'",
-              h2("Viridis Plot"),
-              plotOutput("viridis_plot")),
-              h2("RColorBrewer Plot"),
-              plotOutput("colorbrewer_plot"),
-                h2("Colorspace Plot"),
-                plotOutput("colorspace_plot")
-                   )
+                condition = "input.example_type != 'Discrete'",
+                sliderInput("gray_val",
+                  "Adjust the darkness of the NA Category",
+                  min = 10,
+                  max = 90,
+                  value = 30,
+                  step = 5
+                ),
+                htmlOutput("copyable_gray"),
+                selectInput("low_color",
+                  "Low Color:",
+                  choices = NULL
+                ),
+                selectInput("high_color",
+                  "High Color:",
+                  choices = NULL
+                )
+              ),
+              fluidRow(
+                column(
+                  6,
+                  h2("PBN-ified Plot"),
+                  plotOutput("colorized_plot"),
+                  h2("Base color Plot"),
+                  plotOutput("basic_plot")
+                ),
+                column(
+                  6,
+                  conditionalPanel(
+                    condition = "input.example_type != 'Diverging'",
+                    h2("Viridis Plot"),
+                    plotOutput("viridis_plot")
+                  ),
+                  h2("RColorBrewer Plot"),
+                  plotOutput("colorbrewer_plot"),
+                  h2("Colorspace Plot"),
+                  plotOutput("colorspace_plot")
+                )
               )
+            ),
+            tabPanel(
+              title = "About",
+              tabsetPanel(
+                tabPanel(title = "Writeup")
+              )
+            )
           )
         )
       )
-    ),
-    tabPanel(title = "About",
-             tabsetPanel(
-               tabPanel(title = "Writeup")
-             ))
+    )
+  )
+)
 
-)
-)
+
 # Define server logic
 server <- function(input, output, session) {
 
@@ -270,17 +264,28 @@ server <- function(input, output, session) {
 
   # vector of clustered hex codes displayed neatly to user for copy-paste access
   output$color_vector <- renderText({
-    paste0(paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
-           " \"", ordered_hexes()[length(ordered_hexes())], "\"")
-    })
+    paste0(
+      paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
+      " \"", ordered_hexes()[length(ordered_hexes())], "\"<br><br>"
+    )
+  })
+
+  # display gray value
+  output$copyable_gray <- renderText({
+    paste0("<br><b>Your selected gray is:</b> gray", (100 - input$gray_val), "<br><br>")
+  })
 
   # "copy to clipboard" button for color_vector() abvoe
   output$clip <- renderUI({
-    rclipButton("clipbtn",
-                "Copy to Clipboard",
-                paste0(paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
-                       " \"", ordered_hexes()[length(ordered_hexes())], "\""),
-                icon("clipboard"))
+    rclipButton(
+      "clipbtn",
+      "Copy to Clipboard",
+      paste0(
+        paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
+        " \"", ordered_hexes()[length(ordered_hexes())], "\""
+      ),
+      icon("clipboard")
+    )
   })
 
   # display quantified goodness of fit
@@ -436,8 +441,10 @@ server <- function(input, output, session) {
       ) +
       scale_y_continuous(labels = label_percent()) +
       theme_minimal() +
-      theme(legend.position = "top",
-            aspect.ratio = 0.618)
+      theme(
+        legend.position = "top",
+        aspect.ratio = 0.618
+      )
   )
 
   # creates sequential base plot which is NOT reactive
@@ -449,8 +456,10 @@ server <- function(input, output, session) {
       fill = "Dogs"
     ) +
     theme_void() +
-    theme(plot.title = element_text(size = 18, hjust = 0.5),
-          aspect.ratio = 0.618)
+    theme(
+      plot.title = element_text(size = 18, hjust = 0.5),
+      aspect.ratio = 0.618
+    )
 
   # creates diverging base plot which is NOT reactive
   diverging_plot <- ggplot(brexit, mapping = aes(x = perc, y = region, fill = opinion)) +
@@ -477,7 +486,7 @@ server <- function(input, output, session) {
     if (input$example_type == "Discrete") {
       discrete_plot() +
         scale_color_manual(
-          values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val))),
+          values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val)))
         )
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -522,7 +531,7 @@ server <- function(input, output, session) {
             colorRampPalette(c("white", input$high_color))(3)[3:2],
             colorRampPalette(c(input$low_color, "white"))(3)[2:1]
           ),
-          na.value = paste0("gray", (100 - input$gray_val)) ,
+          na.value = paste0("gray", (100 - input$gray_val)),
           guide = guide_legend(reverse = TRUE)
         )
     }
@@ -541,12 +550,12 @@ server <- function(input, output, session) {
           guide = guide_colorbar()
         )
     } else {
-        diverging_plot +
-          scale_fill_discrete_diverging(
-            na.value = paste0("gray", (100 - input$gray_val)),
-            guide = guide_legend(reverse = TRUE)
-          )
-      }
+      diverging_plot +
+        scale_fill_discrete_diverging(
+          na.value = paste0("gray", (100 - input$gray_val)),
+          guide = guide_legend(reverse = TRUE)
+        )
+    }
   })
 
   # output the ggplot with viridis colors
@@ -604,12 +613,12 @@ server <- function(input, output, session) {
   })
 
   ret1 <- reactive({
-    as.raw(c(output_mat(),output_mat(),output_mat())) %>%
+    as.raw(c(output_mat(), output_mat(), output_mat())) %>%
       image_read() %>%
       image_write(tempfile(fileext = ".jpeg"), format = my_dim()$format)
   })
 
-  #download doesn't work yet
+  # download doesn't work yet
   output$outline_img <- renderImage(
     {
       list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "200px")
@@ -634,7 +643,6 @@ server <- function(input, output, session) {
       file.copy(ret1(), file)
     }
   )
-
 }
 
 # Run the application
