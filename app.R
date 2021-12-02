@@ -63,10 +63,10 @@ ui <- fluidPage(
     theme = bs_theme(version = 4, bootswatch = "flatly"),
     titlePanel(
       h1(
-        "Paint by Numbers",
+        "Abstract-ify",
         h4("Click \"Browse...\" to replace the default image with one of your own")
       ),
-      windowTitle = "PBN-ify"
+      windowTitle = "Abstract-ify"
     ),
       # Sidebar with a slider input for number of bins
       sidebarLayout(
@@ -101,7 +101,7 @@ ui <- fluidPage(
           tabsetPanel(
             tabPanel(
               title = "Home",
-              h2("Welcome to Paint by Numbers"),
+              h2("Welcome to Abstract-ify"),
               p("How to use: select one our preset images or upload one of your
                 own. Use the slider bar to select how many colors you would like
                 to see in your simplified image. You can explore the various tabs
@@ -117,7 +117,7 @@ ui <- fluidPage(
               downloadButton("download_pxl", "Download modified image")
             ),
             tabPanel(
-              title = "Outline",
+              title = "Image Outline",
               plotOutput("outline"),
               downloadButton("download_outline", "Download outline image")
             ),
@@ -161,7 +161,7 @@ ui <- fluidPage(
               fluidRow(
                 column(
                   6,
-                  h2("PBN-ified Plot"),
+                  h2("Abstract-ified Plot"),
                   plotOutput("colorized_plot"),
                   h2("Base color Plot"),
                   plotOutput("basic_plot")
