@@ -14,7 +14,8 @@ Explore the app here: *insert link of deployed app*
 The data folder contains the sample images, the proposal folder contains our 
 initial project idea, the scripts folder contains the outline function we created 
 which finds the color boundaries in the user's image and creates an image outline, 
-and the parse data file reads in some of the data used in our sample plots. 
+and the parse data file reads in some of the data used in our sample plots. Finally, 
+the code for our app can be found under app.R.
 
 
 
