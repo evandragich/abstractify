@@ -11,9 +11,10 @@ ggplots which utilize the bachelor degrees, dog adoption, and brexit data sets.
 Explore the app here: *insert link of deployed app* 
 
 # Repo Organization 
-Data folder contains the sample images, proposal folder contains our initial 
-project idea, the scripts folder contains the outline function we created which 
-finds the color boundaries in the user's image and creates an image outline. 
+The data folder contains the sample images, the proposal folder contains our 
+initial project idea, the scripts folder contains the outline function we created 
+which finds the color boundaries in the user's image and creates an image outline, 
+and the parse data file reads in some of the data used in our sample plots. 
 
 
 
