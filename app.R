@@ -249,26 +249,37 @@ server <- function(input, output, session) {
   )
 
   # vector of clustered hex codes arranged to find lightest/darkest for default values for continuous plots
-  ordered_hexes <- reactive(
-    cluster_lookup() %>%
+  ordered_hexes <- reactive({
+    temp <- cluster_lookup() %>%
       mutate(avg = sum(R, G, B)) %>%
-      arrange(avg) %>%
+      arrange(avg)
+
+    hexes <- temp %>%
       select(rgb_scaled) %>%
       pull()
-  )
+
+    labels <- temp %>%
+      mutate(label = paste0(rgb_scaled, " (", closest, ")")) %>%
+      select(label) %>%
+      pull()
+
+    names(hexes) <- labels
+    hexes
+  })
+
 
   # vector of clustered hex codes displayed neatly to user for copy-paste access
   output$color_vector <- renderText({
-    paste0(paste0("\"", ordered_hexes()[c(1:(length(ordered_hexes()) - 1))], "\", "),
-           "\"", ordered_hexes()[length(ordered_hexes())], "\"")
+    paste0(paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
+           " \"", ordered_hexes()[length(ordered_hexes())], "\"")
     })
 
   # "copy to clipboard" button for color_vector() abvoe
   output$clip <- renderUI({
     rclipButton("clipbtn",
                 "Copy to Clipboard",
-                paste0(paste0("\"", ordered_hexes()[c(1:(length(ordered_hexes()) - 1))], "\", "),
-                       "\"", ordered_hexes()[length(ordered_hexes())], "\""),
+                paste0(paste0("\"", ordered_hexes()[c(-(length(ordered_hexes())))], "\",", collapse = " "),
+                       " \"", ordered_hexes()[length(ordered_hexes())], "\""),
                 icon("clipboard"))
   })
 
@@ -390,7 +401,7 @@ server <- function(input, output, session) {
       "low_color",
       label = "Low Color:",
       choices = ordered_hexes(),
-      selected = ordered_hexes()[1]
+      selected = ordered_hexes()[length(ordered_hexes())]
     )
   })
 
@@ -400,7 +411,7 @@ server <- function(input, output, session) {
       "high_color",
       label = "High Color:",
       choices = ordered_hexes(),
-      selected = ordered_hexes()[length(ordered_hexes())]
+      selected = ordered_hexes()[1]
     )
   })
 
@@ -508,10 +519,10 @@ server <- function(input, output, session) {
       diverging_plot +
         scale_fill_manual(
           values = c(
-            colorRampPalette(c(input$low_color, "white"))(3)[1:2],
-            colorRampPalette(c("white", input$high_color))(3)[2:3]
+            colorRampPalette(c("white", input$high_color))(3)[3:2],
+            colorRampPalette(c(input$low_color, "white"))(3)[2:1]
           ),
-          na.value = paste0("gray", (100 - input$gray_val)),
+          na.value = paste0("gray", (100 - input$gray_val)) ,
           guide = guide_legend(reverse = TRUE)
         )
     }
