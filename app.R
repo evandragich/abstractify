@@ -305,6 +305,7 @@ server <- function(input, output, session) {
     {
       list(src = my_path(), height = "200px")
     },
+    alt = "The raw, original image, either uploaded by user or selected from one of the defaults.",
     # saves image after sending to UI
     deleteFile = FALSE
   )
@@ -346,7 +347,9 @@ server <- function(input, output, session) {
       main = "Colorspace Plot",
       asp = 0.618
     )
-  })
+  },
+  alt = "3d scatterplot displaying the red, green, and blue components of each pixel in the image along the x, y, and z axes respectively."
+  )
 
   # function to find suitable white/black contrast for input hex code for reactable display
   hex_to_bw <- function(hex) {
@@ -434,7 +437,8 @@ server <- function(input, output, session) {
         subtitle = "from 1990 to 2015 in the US",
         x = "Year",
         y = "Percent",
-        color = "Field"
+        color = "Field",
+        alt = "________"
       ) +
       guides(
         color = guide_legend(ncol = 3, byrow = TRUE)
@@ -454,7 +458,8 @@ server <- function(input, output, session) {
     labs(
       title = "Number of Dogs Available to Adopt in U.S. States",
       caption = "Gray represents states with missing or unknown data.",
-      fill = "Dogs"
+      fill = "Dogs",
+      alt = "________"
     ) +
     theme_void() +
     theme(
@@ -471,7 +476,8 @@ server <- function(input, output, session) {
       caption = "Source: bit.ly/2lCJZVg",
       x = NULL,
       y = NULL,
-      fill = "Opinion"
+      fill = "Opinion",
+      alt = "________"
     ) +
     scale_x_continuous(labels = label_percent()) +
     theme_minimal() +
