@@ -70,7 +70,6 @@ ui <- fluidPage(
       ),
       windowTitle = "PBN-ify"
     ),
-    tabsetPanel(
       # Sidebar with a slider input for number of bins
       sidebarLayout(
         sidebarPanel(
@@ -211,7 +210,6 @@ ui <- fluidPage(
             )
           )
         )
-      )
     )
   )
 )
