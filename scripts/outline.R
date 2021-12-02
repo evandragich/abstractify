@@ -53,7 +53,7 @@ outline_func <- function(cluster_vector, im_dim) {
 }
 
 plot_outline <- function(mat, my_dim) {
-  if (my_dim[1] < 500) {
+  if (my_dim[1] < 300) {
     alt_image <- image(z = mat, col = bw_colors, axes = FALSE)
   } else {
     alt_image <- image(z = boundary_func(mat, my_dim), col = bw_colors, axes = FALSE)
