@@ -79,10 +79,15 @@ ui <- fluidPage(
             value = 5
           ),
           fileInput("upload",
-            "Upload an image:",
+            "Upload an image:*",
             accept = "image/*",
             placeholder = "No image selected"
           ),
+          p('*Please limit photo size to <100 KB. If needed use ',
+            a(href = 'http://www.simpleimageresizer.com/upload', 'this website',
+              .noWS = "outside"), ' to shrink your photo.',
+            .noWS = c("after-begin", "before-end")
+            ),
           p("Or"),
           selectInput(
             inputId = "defaultImage",
@@ -114,7 +119,7 @@ ui <- fluidPage(
             ),
             tabPanel(
               title = "Simplified Output",
-              imageOutput("pixelated_img", height = "200px"),
+              imageOutput("pixelated_img", height = "400px"),
               downloadButton("download_pxl", "Download modified image")
             ),
             tabPanel(
@@ -307,7 +312,7 @@ server <- function(input, output, session) {
   # display original image
   output$original_img <- renderImage(
     {
-      list(src = my_path(), height = "200px")
+      list(src = my_path(), height = "400px")
     },
     #alt = "The raw, original image, either uploaded by user or selected from one of the defaults.",
     # saves image after sending to UI
@@ -338,7 +343,7 @@ server <- function(input, output, session) {
   # display pixelated image
   output$pixelated_img <- renderImage(
     {
-      list(src = ret(), contentType = paste0("image/", my_dim()$format), height = "200px")
+      list(src = ret(), contentType = paste0("image/", my_dim()$format), height = "400px")
     },
     # saves image after sending to UI
     deleteFile = FALSE
@@ -622,8 +627,8 @@ server <- function(input, output, session) {
   output$outline <- renderPlot({
     plot_outline(output_mat(), c(my_dim()$height, my_dim()$width))
   },
-  height = function() {if_else(my_dim()$height > 500, my_dim()$height, as.integer(my_dim()$height * 2))},
-  width = function() {if_else(my_dim()$height > 500, my_dim()$width, as.integer(my_dim()$width * 2))}
+  height = function() {400},
+  width = function() {(400/my_dim()$height)*my_dim()$width}
   )
 
   output_image_mat <- reactive({
@@ -639,7 +644,7 @@ server <- function(input, output, session) {
   # download doesn't work yet
   output$outline_img <- renderImage(
     {
-      list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "200px")
+      list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "400px")
     },
     # saves image after sending to UI
     deleteFile = FALSE
