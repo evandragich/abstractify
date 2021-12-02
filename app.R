@@ -184,10 +184,7 @@ ui <- fluidPage(
               )
             ),
             tabPanel(
-              title = "About",
-              tabsetPanel(
-                tabPanel(title = "Writeup")
-              )
+              title = "About"
             )
           )
         )
