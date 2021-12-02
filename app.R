@@ -3,8 +3,8 @@ library(tidyverse)
 library(scales) # label_percent on degree base plot
 library(reactable) # color table
 library(magick) # image manipulation/metadata extraction
-library(colorspace) # sample plots
-library(maps)
+library(colorspace) # sample plots color scale
+library(maps) # sequential sample plot map data
 library(colordistance) # color clustering and pixel plot
 library(rclipboard) # copying ordered hexes to user's clipboard
 library(bslib) # Shiny themes
@@ -118,7 +118,7 @@ ui <- fluidPage(
               downloadButton("download_pxl", "Download modified image")
             ),
             tabPanel(
-              title = "Image Outline",
+              title = "Outline",
               plotOutput("outline"),
               downloadButton("download_outline", "Download outline image")
             ),
@@ -149,7 +149,10 @@ ui <- fluidPage(
                   value = 30,
                   step = 5
                 ),
-                htmlOutput("copyable_gray"),
+                htmlOutput("copyable_gray")
+              ),
+              conditionalPanel(
+                condition = "input.example_type != 'Categorical'",
                 selectInput("low_color",
                   "Low Color:",
                   choices = NULL
@@ -439,7 +442,7 @@ server <- function(input, output, session) {
         x = "Year",
         y = "Percent",
         color = "Field",
-        alt = "________"
+        alt = "This figure is a line graph titled Percentage of annual degrees awarded from 1990 to 2015 in the US and plots the year on the x-axis and percent on y-axis and plots the change in degrees between 1991 and 2015. The number of degrees/lines plotted is going to change depending on the number of colors the user selects using the sliding bar, so it will range anywhere between 2 and 10 degree categories, one of the degree categories will always be other degrees. The app renders the same plot in 5 different color palettes including the custom color palette, viridis, color brewer, base r colors, and color space."
       ) +
       guides(
         color = guide_legend(ncol = 3, byrow = TRUE)
@@ -457,10 +460,10 @@ server <- function(input, output, session) {
   sequential_plot <- ggplot(dog_travel, mapping = aes(x = long, y = lat, group = group, fill = n)) +
     geom_polygon(color = "black") +
     labs(
-      title = "Number of Dogs Available to Adopt in U.S. States",
+      title = "Number of Dogs Available to \n Adopt in U.S. States",
       caption = "Gray represents states with missing or unknown data.",
       fill = "Dogs",
-      alt = "________"
+      alt = "This is a US map titled Number of Dogs Available to Adopt in US States. Each US state is filled with a color which corresponds to the color scale in the legend indicating anywhere from 0 to 1000 dogs available for adoption. Gray states are indicative of a state with unknown or missing data. The user can manipulate the darkness of the states with unknown/missing data as well as the low and high color using colors from either their uploaded image or from the sample images provided for the abstract-ified plot. The same plot is shown using 4 other color packages: viridis, color brewer, base r colors, and color space."
     ) +
     theme_void() +
     theme(
@@ -472,13 +475,13 @@ server <- function(input, output, session) {
   diverging_plot <- ggplot(brexit, mapping = aes(x = perc, y = region, fill = opinion)) +
     geom_col() +
     labs(
-      title = "How well or badly do you think the government are doing\n at handling Britain's exit from the European Union?",
+      title = "How well or badly do you think the government \n are doing at handling Britain's exit from the \n European Union?",
       subtitle = "YouGov Survey Results, 2-3 September 2019",
       caption = "Source: bit.ly/2lCJZVg",
       x = NULL,
       y = NULL,
       fill = "Opinion",
-      alt = "________"
+      alt = "This is a stacked bar chart titled How well or badly do you think the government are doing at handling Britain's exit from the European Union. It plots 0 to 100% on the x-axis and Scotland, North, Midlands/Wales, Rest of South, and London on the y-axis. Each portion of the stacked bar corresponds to an opinion (either very badly, fairly badly, fairly well, or very well. The plot is shown in 5 color packages: viridis, color brewer, base r colors, color space, and the abstract-ified plot. The user can manipulate the colors in the abstract-ified plot by changing the number of colors on the sliding bar and adjusting the range of the high and low colors."
     ) +
     scale_x_continuous(labels = label_percent()) +
     theme_minimal() +
@@ -494,7 +497,7 @@ server <- function(input, output, session) {
     if (input$example_type == "Categorical") {
       categorical_plot() +
         scale_color_manual(
-          values = c(hue_pal()(input$clusters), paste0("gray", (100 - input$gray_val)))
+          values = c(hue_pal()(input$clusters))
         )
     } else if (input$example_type == "Sequential") {
       sequential_plot +
@@ -618,7 +621,10 @@ server <- function(input, output, session) {
 
   output$outline <- renderPlot({
     plot_outline(output_mat(), c(my_dim()$height, my_dim()$width))
-  })
+  },
+  height = function() {if_else(my_dim()$height > 500, my_dim()$height, as.integer(my_dim()$height * 2))},
+  width = function() {if_else(my_dim()$height > 500, my_dim()$width, as.integer(my_dim()$width * 2))}
+  )
 
   output_image_mat <- reactive({
     rbg_outline(output_mat())
