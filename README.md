@@ -15,7 +15,9 @@ The data folder contains the sample images, the proposal folder contains our
 initial project idea, the scripts folder contains the outline function we created 
 which finds the color boundaries in the user's image and creates an image outline, 
 and the parse data file reads in some of the data used in our sample plots. Finally, 
-the code for our app can be found under app.R.
+the code for our app can be found under app.R. Static images such as the
+screenshots of our writeup can be found in the www directory for ease of use with
+HTML's img tag. 
 
 
 
