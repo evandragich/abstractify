@@ -13,7 +13,7 @@ library(bslib) # Shiny themes
 
 source("scripts/outline.R")
 
-options(shiny.maxRequestSize = .2*1024^2)
+options(shiny.maxRequestSize = .5*1024^2)
 
 # load + create data for sample plots
 degrees <- read_csv(here::here("data", "BA_degrees.csv")) %>%
@@ -85,9 +85,14 @@ ui <- fluidPage(
             accept = "image/*",
             placeholder = "No image selected"
           ),
-          p('*Please limit photo size to <100 KB. If needed use ',
-            a(href = 'http://www.simpleimageresizer.com/upload', 'this website',
-              .noWS = "outside"), ' to shrink your photo.',
+          p('*Please limit photo size to <200 KB. If needed use ',
+            a(
+              href = 'http://www.simpleimageresizer.com/upload',
+              'this website',
+              .noWS = "outside",
+              target="_blank"
+              ),
+            ' to shrink your photo.',
             .noWS = c("after-begin", "before-end")
             ),
           p("Or"),

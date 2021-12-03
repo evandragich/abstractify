@@ -5,10 +5,10 @@ account: mwreed1
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5254188
-bundleId: 5321404
+bundleId: 5321623
 url: https://mwreed1.shinyapps.io/abstract-ify/
-when: 1638487474.55593
-lastSyncTime: 1638487474.55595
+when: 1638492227.84831
+lastSyncTime: 1638492227.84832
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .github/ISSUE_TEMPLATE/instructor-feedback.md|.github/ISSUE_TEMPLATE/peer-review.md|proposal/proposal.md|proposal/proposal.Rmd|proposal/README.md|README.md|scripts/README.md
