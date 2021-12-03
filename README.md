@@ -19,3 +19,4 @@ the code for our app can be found under app.R.
 
 
 
+![screen shot of app home-page](data/home-page.png)
