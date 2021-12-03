@@ -75,6 +75,8 @@ Paint-by-numbers was invented in the early 1950s and relied upon very abstract a
   <br> We then perform a <code>left_join()</code> to match the numbered clusters in this vector with their R, G, and B values, concatenate these three components, and use base R's <code>matrix()</code> function to turn this into the image that is displayed. While we are able to make heavy use of <code>colordistance</code> to extract an image's colors and map the clustered colors to each pixel, the process of creating the outlines is done through our own set of functions.
 
 </p>
+<img src = "andrew_original.PNG", style = "width:600px;height:300px">
+<img src = "andrew_simplified.PNG", style = "width:600px;height:300px">
 <h4> <b>
   Outline Creation
 </b> </h4>
@@ -82,6 +84,7 @@ Paint-by-numbers was invented in the early 1950s and relied upon very abstract a
   Outline creation is performed via the <code>outline_func()</code> and <code>plot_outline()</code> functions. The former is given the k-means color cluster object from earlier and the pixel dimensions of the original image. From there, <code>outline_func()</code> transforms the cluster vector into a matrix with the original’s dimensions. <code>plot_outline()</code> operates on this matrix differently depending on size - small images that lack fine detail are essentially rounded to either black or white. Larger images are passed to a more extensive <code>boundary_func()</code> function that iterates through each pixel. If the pixel next to a pixel from a different color cluster, it is colored black to denote a boundary between distinct colors. Otherwise, each pixel is white.
 
 </p>
+<img src = "andrew_outline.PNG", style = "width:600px;height:300px">
 <h4> <b>
   Color Analytics
 </b> </h4>
