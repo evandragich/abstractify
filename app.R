@@ -100,6 +100,7 @@ ui <- fluidPage(
               "Evan Picture" = "sample-image.jpeg",
               "Block Art" = "block-art.jpeg",
               "Emely Picture" = "emely_gutierrez.jpg",
+              "Andrew Picture" = "andrew.jpg",
               "Duke Chapel" = "duke-chapel.jpeg",
               "Modern Art" = "modern-art.jpeg"
             ),
