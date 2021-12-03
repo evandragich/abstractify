@@ -25,7 +25,7 @@ In order to showcase our color palette, we use visualizations constructed from t
   Simplified Output
 </b> </h5>
 
-<img src = "simplified_output.PNG", alt = "none", style = "width:750px;height:350px">
+<img src = "simplified_output.PNG", alt = "none", style = "width:750px;height:250px">
 
 <p>
   Here, the image with clustered colors is shown with a download option.
@@ -34,7 +34,7 @@ In order to showcase our color palette, we use visualizations constructed from t
   Outline
 </b> </h5>
 
-<img src = "outline.PNG", alt = "none", style = "width:750px;height:350px">
+<img src = "outline.PNG", alt = "none", style = "width:750px;height:250px">
 
 <p>
   Here, the image’s abstract outline is shown.
@@ -52,8 +52,8 @@ In order to showcase our color palette, we use visualizations constructed from t
   Color Palette: Plotting
 </b> </h5>
 
-<img src = "color_palette_plotting_1.PNG", alt = "none", style = "width:750px;height:350px">
-<img src = "color_palette_plotting_2.PNG", alt = "none", style = "width:750px;height:350px">
+<img src = "color_palette_plotting_1.PNG", alt = "none", style = "width:750px;height:300px">
+<img src = "color_palette_plotting_2.PNG", alt = "none", style = "width:600px;height:500px">
 
 <p>
   Here, we show a set of five identical plots with color palettes from base <code>ggplot2</code>, common palette packages, and our own Abstract-ified custom palette. These five plots are reactive to the plot type buttons and adjust their source data and plot type to fit the needs of the chosen palette.
@@ -103,8 +103,8 @@ Paint-by-numbers was invented in the early 1950s and relied upon very abstract a
   Discussion
 </b> </h4>
 <p>
-  We were originally inspired to create our application by paint-by-numbers, but as the project developed we began to see the difficulty of creating image outlines that could actually be filled by a human - often, the drawn regions are so small and numerous that a number couldn’t even be displayed in all of them. We have identified three common features in an image that can produce poor simplifications and outlines: overall lack of contrast, fractal-like patterns, and blur effects. Low contrast reduces the effectiveness of our k-means fitting while fractal patterns such as tree branches produce unfillable templates. Blur effects naturally reduce the information available to our application while also weakening the color changes that trigger boundaries to be drawn.
-	Aside from specific patterns, our application is also severely limited by image size - processing time and RAM needs increase rapidly as the resolution of the user image rises. In order to cap runtimes to a reasonable level, we recommend using images that are less than 200KB.
-	The final limitation of our application is that it does not produce its outlines deterministically. Each time that one varies the number of distinct colors on a small image, the simple boundary function will return outlines with significant changes. On large images, however, the outlines are much more stable and tend to emphasize the same features in the original image.
+  We were originally inspired to create our application by paint-by-numbers, but as the project developed we began to see the difficulty of creating image outlines that could actually be filled by a human - often, the drawn regions are so small and numerous that a number couldn’t even be displayed in all of them. We have identified three common features or patterns in an image that can produce poor simplifications and outlines: overall lack of contrast, fractal-like patterns, and blur effects. Low contrast photos have color clusters that are closer together and thus harder for our k-means process to distinguish. Fractal patterns are processed normally, but tend to create snakey, unfillable outlines that would not be practical for a paint-by-numbers. Blur effects are very poorly handled by our approach - since blurring both destroys boundary information and widens the spectrum of colors, it causes poor performance in both our color simplification and outline functions.
+  <br>Aside from specific patterns, our application is also severely limited by image size - processing time and RAM needs increase rapidly as the resolution of the user image rises. In order to cap runtimes to a reasonable level, we recommend using images that are less than 200KB.
+	<br>The final limitation of our application is that it does not produce its outlines deterministically. Each time that one varies the number of distinct colors on a small image, the simple boundary function will return outlines with significant changes. On large images, however, the outlines are much more stable and tend to emphasize the same features in the original image.
 
 </p>
