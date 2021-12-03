@@ -1,47 +1,60 @@
-<h4> <b>
+<h3> <b>
   Introduction
-  </b> </h4>
+  </b> </h3>
   <p> Everyone has the ability to express themselves through art, but some of us lack the technical skills to create an aesthetically-pleasing piece. Novice artists can use paint-by-numbers as an elegant solution - one can practice their artistic skills while still creating something that elicits pride. Unfortunately, paint-by-numbers has a major flaw - the need to use someone else’s template restricts the imagination of the artist and limits the possible subjects that one can create. What if an artist could choose their own image and transform it into a personal paint-by-numbers kit with a set number of colors and an outline? Our project attempts to answer this question in the form of a Shiny Application which takes as input an image file from the user. From there, it simplifies the image into a user-selected number of distinct colors and outputs the abstract image, the image  outline, color analytics, and custom color palettes.
 In order to showcase our color palette, we use visualizations constructed from three datasets used previously in the course: the YouGov <code>brexit.csv</code> survey results, the <code>BA_degrees</code> awards data, and the TidyTuesday <code>dog_travel.csv</code> dog adoption figures. In each of these datasets, we use the same variables and plot types as the class has used in past homeworks.  As sample images, we have included four head shots of our team, an abstract art piece, and a Simpsons image.
 </p>
-<h4> <b>
+<h3> <b>
  App Layout
-</b> </h4>
+</b> </h3>
 <p>
   Our app uses a sidebar with an image upload and a slider input for the user's
   preferred number of colors
 </p>
-<h6> <b>
+<h5> <b>
   Home Tab
-</b> </h6>
+</b> </h5>
 
-<img src = "home_page.PNG", alt = "none", style = "width:600px;height:400px">
+<img src = "home_page.PNG", alt = "none", style = "width:750px;height:350px">
 
 <p>
   Here, the original image is shown as well as brief instructions
 
 </p>
-<h6> <b>
+<h5> <b>
   Simplified Output
-</b> </h6>
+</b> </h5>
+
+<img src = "simplified_output.PNG", alt = "none", style = "width:750px;height:350px">
+
 <p>
   Here, the image with clustered colors is shown with a download option.
 </p>
-<h6> <b>
+<h5> <b>
   Outline
-</b> </h6>
+</b> </h5>
+
+<img src = "outline.PNG", alt = "none", style = "width:750px;height:350px">
+
 <p>
   Here, the image’s abstract outline is shown.
 </p>
-<h6> <b>
+<h5> <b>
   Color Palette: Info
-</b> </h6>
+</b> </h5>
+
+<img src = "color_palette_info.PNG", alt = "none", style = "width:750px;height:350px">
+
 <p>
   Here, we present a three dimensional RGB plot of the original pixels, a <code>reactable</code> table of the clustered colors, and a goodness of fit metric (R-Squared).
 </p>
-<h6> <b>
+<h5> <b>
   Color Palette: Plotting
-</b> </h6>
+</b> </h5>
+
+<img src = "color_palette_plotting_1.PNG", alt = "none", style = "width:750px;height:350px">
+<img src = "color_palette_plotting_2.PNG", alt = "none", style = "width:750px;height:350px">
+
 <p>
   Here, we show a set of five identical plots with color palettes from base <code>ggplot2</code>, common palette packages, and our own Abstract-ified custom palette. These five plots are reactive to the plot type buttons and adjust their source data and plot type to fit the needs of the chosen palette.
 
@@ -49,6 +62,7 @@ In order to showcase our color palette, we use visualizations constructed from t
 <h4> <b>
   Image Processing
 </b> </h4>
+
 <p>
 Paint-by-numbers was invented in the early 1950s and relied upon very abstract art styles that required few distinct colors.. As the public became more demanding - seeking templates for famous pieces and more realistic styles - the color requirements began to grow as well. Even today,  paint-by-number kits struggle to show both high levels of detail and realistic low-contrast color shifts in the same kit without an unwieldy number of distinct shades. Our application approaches the paint-by-numbers process with color minimization as a priority - the number of desired colors is a user-input and has a maximum of ten. Our choice to minimize colors means that our application cannot preserve all of the fine detail in realistic images and thus creates a more abstract version of the original.
 
