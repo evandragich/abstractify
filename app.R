@@ -99,7 +99,8 @@ ui <- fluidPage(
               "Margaret Picture" = "MargaretReed.jpeg",
               "Evan Picture" = "sample-image.jpeg",
               "Block Art" = "block-art.jpeg",
-              "Emely Picture" = "emely_gutierrez.jpg"
+              "Emely Picture" = "emely_gutierrez.jpg",
+              "Andrew Picture" = "andrew.jpg"
             ),
             selected = "sample-image.jpeg",
             multiple = FALSE
