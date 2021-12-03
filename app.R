@@ -403,7 +403,7 @@ server <- function(input, output, session) {
 
   # description to explain example plot tab
   output$example_plot_description <- renderText({
-    "On this page, you can test out the color palette generated from your image in-use in `ggplot2()`.
+    "On this page, you can test out the color palette generated from your image in-use in <code>ggplot()</code>.
     <br><br>
     Paste the hexcodes to recreate the palette.
     <br><br>
