@@ -59,8 +59,3 @@ plot_outline <- function(mat, my_dim) {
     alt_image <- image(z = boundary_func(mat, my_dim), col = bw_colors, axes = FALSE)
   }
 }
-
-rbg_outline <- function(mat) {
-  rgb_mat <- c(mat, mat, mat)
-  return(rgb_mat)
-}

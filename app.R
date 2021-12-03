@@ -57,11 +57,6 @@ ordered_fields <- degrees %>%
   select(field) %>%
   pull()
 
-#### suggestions for aesthetics of the UI
-# everything that is currently in the "tabsets" should become part of a navbar
-# see this link for an example https://shiny.rstudio.com/gallery/navbar-example.html
-# keep slider bar permanently on the left
-# Define UI
 ui <- fluidPage(
     theme = bs_theme(version = 4, bootswatch = "flatly"),
     titlePanel(
@@ -132,7 +127,6 @@ ui <- fluidPage(
             tabPanel(
               title = "Outline",
               plotOutput("outline"),
-              downloadButton("download_outline", "Download outline image")
             ),
             tabPanel(
               title = "Color Palette: Info",
@@ -638,39 +632,12 @@ server <- function(input, output, session) {
   width = function() {(400/my_dim()$height)*my_dim()$width}
   )
 
-  output_image_mat <- reactive({
-    rbg_outline(output_mat())
-  })
-
-  ret1 <- reactive({
-    as.raw(c(output_mat(), output_mat(), output_mat())) %>%
-      image_read() %>%
-      image_write(tempfile(fileext = ".jpeg"), format = my_dim()$format)
-  })
-
-  # download doesn't work yet
-  output$outline_img <- renderImage(
-    {
-      list(src = ret1(), contentType = paste0("image/", my_dim()$format), height = "400px")
-    },
-    # saves image after sending to UI
-    deleteFile = FALSE
-  )
-
   # adds download capability for pixelated image
   output$download_pxl <- downloadHandler(
     filename = paste0("pixelated_image_", input$clusters, "_colors_", Sys.Date(), ".jpeg"),
     contentType = "image/jpeg",
     content = function(file) {
       file.copy(ret(), file)
-    }
-  )
-
-  output$download_outline <- downloadHandler(
-    filename = paste0("outline_image_", Sys.Date(), ".jpeg"),
-    contentType = "image/jpeg",
-    content = function(file) {
-      file.copy(ret1(), file)
     }
   )
 }
