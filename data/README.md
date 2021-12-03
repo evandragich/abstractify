@@ -33,3 +33,7 @@ Sample plots inspired by STA313L Fall 2021:
 [Marge Simpson](https://media.npr.org/assets/img/2013/05/07/ap0908140151727_vert-06dfa531201681c1ebe2d126471494fdeb5048ae.jpg)
 
 Other sample images from personal use.
+
+### Contextual Info
+
+[Paint-by-numbers](https://mymodernmet.com/paint-by-numbers-history-dan-robbins/)
