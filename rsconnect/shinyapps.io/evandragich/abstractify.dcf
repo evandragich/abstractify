@@ -1,0 +1,13 @@
+name: abstractify
+title: abstractify
+username:
+account: evandragich
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5354170
+bundleId: 5394288
+url: https://evandragich.shinyapps.io/abstractify/
+when: 1640022427.07012
+lastSyncTime: 1640022427.07014
+asMultiple: FALSE
+asStatic: FALSE
